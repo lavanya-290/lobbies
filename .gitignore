@@ -1,0 +1,9 @@
+node_modules/
+.next/
+build/
+*.tsbuildinfo
+.env
+.env.local
+next-env.d.ts
+*.log
+/habbo-clone/ 

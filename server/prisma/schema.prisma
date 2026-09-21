@@ -1,0 +1,110 @@
+// Prisma schema — matches the data model sketched in PLAN.md section 5.
+// Run `npx prisma generate` after editing this file, and
+// `npx prisma migrate dev --name init` once DATABASE_URL points at a real
+// running Postgres (see docker-compose.yml at the repo root).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  housesOwned House[]        @relation("HouseOwner")
+  houseMemberships HouseMember[]
+  roomsOwned  Room[]         @relation("RoomOwner")
+  placed      PlacedObject[] @relation("PlacedBy")
+}
+
+model House {
+  id         String   @id @default(cuid())
+  ownerId    String
+  owner      User     @relation("HouseOwner", fields: [ownerId], references: [id])
+  inviteCode String   @unique
+  layoutId   String   @default("default")
+  createdAt  DateTime @default(now())
+
+  rooms Room[]
+  members HouseMember[]
+}
+
+model HouseMember {
+  houseId  String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([houseId, userId])
+  @@index([userId])
+}
+
+enum RoomType {
+  SHARED
+  PERSONAL
+}
+
+model Room {
+  id         String   @id @default(cuid())
+  houseId    String
+  house      House    @relation(fields: [houseId], references: [id])
+  type       RoomType @default(SHARED)
+  ownerId    String? // set when type = PERSONAL
+  owner      User?    @relation("RoomOwner", fields: [ownerId], references: [id])
+  tilemapRef String   @default("starter_room")
+  createdAt  DateTime @default(now())
+
+  placedObjects PlacedObject[]
+}
+
+enum AssetType {
+  HANDMADE
+  PROCEDURAL
+  BOOK
+  UPLOAD
+}
+
+model Asset {
+  id            String    @id @default(cuid())
+  type          AssetType
+  metadata      Json?
+  sourceRecipe  Json? // for PROCEDURAL: {shape, material, color, style, ...}
+  sourceUrl     String? // for HANDMADE/UPLOAD/BOOK: where the sprite/image lives
+  createdAt     DateTime  @default(now())
+
+  placedObjects PlacedObject[]
+  book          Book?
+}
+
+model Book {
+  id             String @id @default(cuid())
+  googleVolumeId String @unique
+  title          String
+  author         String
+  coverAssetId   String @unique
+  coverAsset     Asset  @relation(fields: [coverAssetId], references: [id])
+}
+
+model PlacedObject {
+  id        String   @id @default(cuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id])
+  assetId   String
+  asset     Asset    @relation(fields: [assetId], references: [id])
+  x         Float
+  y         Float
+  rotation  Float    @default(0)
+  placedById String
+  placedBy  User     @relation("PlacedBy", fields: [placedById], references: [id])
+  metadata  Json?
+  createdAt DateTime @default(now())
+}

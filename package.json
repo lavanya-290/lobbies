@@ -1,0 +1,12 @@
+{
+  "name": "habbo-clone",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["client", "server"],
+  "scripts": {
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "server:dev": "npm run dev --workspace=server",
+    "client:dev": "npm run dev --workspace=client"
+  }
+}
