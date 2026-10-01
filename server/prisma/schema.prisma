@@ -16,12 +16,19 @@ model User {
   id           String   @id @default(cuid())
   username     String   @unique
   passwordHash String
+  character    CharacterType @default(FEMALE)
+  equippedOutfit Json?
   createdAt    DateTime @default(now())
 
   housesOwned House[]        @relation("HouseOwner")
   houseMemberships HouseMember[]
   roomsOwned  Room[]         @relation("RoomOwner")
   placed      PlacedObject[] @relation("PlacedBy")
+}
+
+enum CharacterType {
+  MALE
+  FEMALE
 }
 
 model House {

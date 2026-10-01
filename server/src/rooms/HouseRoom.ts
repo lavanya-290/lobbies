@@ -91,6 +91,40 @@ export class HouseRoom extends Room<HouseState> {
       await prisma.placedObject.delete({ where: { id: object.id } });
       this.state.objects.delete(object.id);
     });
+
+    this.onMessage("equip_outfit", async (client, message: { category?: string; itemId?: string | null; outfit?: Record<string, string> }) => {
+      const auth = this.clientUsers.get(client.sessionId);
+      const player = this.state.players.get(client.sessionId);
+      if (!auth || !player) return;
+
+      let current: Record<string, string> = {};
+      try {
+        current = JSON.parse(player.equippedOutfit || "{}");
+      } catch {
+        current = {};
+      }
+
+      if (message.outfit && typeof message.outfit === "object") {
+        current = { ...message.outfit };
+      } else if (message.category && typeof message.category === "string") {
+        if (!message.itemId) {
+          delete current[message.category];
+        } else {
+          current[message.category] = message.itemId;
+        }
+      }
+
+      player.equippedOutfit = JSON.stringify(current);
+
+      try {
+        await prisma.user.update({
+          where: { id: auth.userId },
+          data: { equippedOutfit: current },
+        });
+      } catch (err) {
+        console.error("[HouseRoom] Failed to persist equipped outfit:", err);
+      }
+    });
   }
 
   private isValidPlacement(message: PlaceObjectMessage) {
@@ -146,12 +180,24 @@ export class HouseRoom extends Room<HouseState> {
     throw new Error("A session is required.");
   }
 
-  onJoin(client: Client, _options: JoinOptions, auth: AuthTokenPayload) {
+  async onJoin(client: Client, _options: JoinOptions, auth: AuthTokenPayload) {
     this.clientUsers.set(client.sessionId, auth);
     const player = new Player();
     player.username = auth.username;
+    player.character = auth.character ?? "FEMALE";
+
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: auth.userId },
+        select: { equippedOutfit: true },
+      });
+      player.equippedOutfit = dbUser?.equippedOutfit ? JSON.stringify(dbUser.equippedOutfit) : "{}";
+    } catch {
+      player.equippedOutfit = "{}";
+    }
+
     this.state.players.set(client.sessionId, player);
-    console.log(`[HouseRoom] ${player.username} joined (${client.sessionId})`);
+    console.log(`[HouseRoom] ${player.username} joined (${client.sessionId}) with outfit ${player.equippedOutfit}`);
   }
 
   onLeave(client: Client) {

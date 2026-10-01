@@ -6,13 +6,23 @@ import { Server } from "colyseus";
 import { WebSocketTransport } from "@colyseus/ws-transport";
 import { HouseRoom } from "./rooms/HouseRoom";
 import { authRouter } from "./routes/auth";
+import { meRouter } from "./routes/me";
 import { housesRouter } from "./routes/houses";
 import { placedObjectsRouter } from "./routes/placedObjects";
 
 const PORT = Number(process.env.PORT ?? 2567);
+const clientUrl = process.env.CLIENT_URL;
+const allowedOrigins = clientUrl
+  ? clientUrl.split(",").map((s) => s.trim().replace(/\/$/, ""))
+  : true;
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/health", (_req, res) => {
@@ -20,6 +30,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/me", meRouter);
 app.use("/houses", housesRouter);
 app.use("/", placedObjectsRouter);
 

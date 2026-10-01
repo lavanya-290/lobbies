@@ -10,6 +10,7 @@ const JWT_EXPIRES_IN = "7d";
 export interface AuthTokenPayload {
   userId: string;
   username: string;
+  character: "MALE" | "FEMALE";
 }
 
 export async function hashPassword(plain: string): Promise<string> {

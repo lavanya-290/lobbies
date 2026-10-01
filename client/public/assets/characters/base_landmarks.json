@@ -1,0 +1,976 @@
+{
+    "meta":  {
+                 "frameHeight":  767,
+                 "description":  "Permanent pixel alignment landmarks for all modular outfit items on base characters",
+                 "frameWidth":  321,
+                 "groundY":  762
+             },
+    "sheets":  {
+                   "base_female_walk_up":  {
+                                               "frames":  [
+                                                              {
+                                                                  "overall":  {
+                                                                                  "y":  4,
+                                                                                  "width":  321,
+                                                                                  "height":  759,
+                                                                                  "x":  0
+                                                                              },
+                                                                  "frameIndex":  0,
+                                                                  "landmarks":  {
+                                                                                    "feet":  {
+                                                                                                 "y":  681,
+                                                                                                 "width":  148,
+                                                                                                 "height":  82,
+                                                                                                 "x":  68
+                                                                                             },
+                                                                                    "head":  {
+                                                                                                 "y":  4,
+                                                                                                 "width":  247,
+                                                                                                 "height":  282,
+                                                                                                 "x":  19
+                                                                                             },
+                                                                                    "legs":  {
+                                                                                                 "y":  521,
+                                                                                                 "width":  174,
+                                                                                                 "height":  160,
+                                                                                                 "x":  80
+                                                                                             },
+                                                                                    "torso":  {
+                                                                                                  "y":  286,
+                                                                                                  "width":  321,
+                                                                                                  "height":  235,
+                                                                                                  "x":  0
+                                                                                              }
+                                                                                }
+                                                              },
+                                                              {
+                                                                  "overall":  {
+                                                                                  "y":  4,
+                                                                                  "width":  279,
+                                                                                  "height":  759,
+                                                                                  "x":  21
+                                                                              },
+                                                                  "frameIndex":  1,
+                                                                  "landmarks":  {
+                                                                                    "feet":  {
+                                                                                                 "y":  681,
+                                                                                                 "width":  178,
+                                                                                                 "height":  82,
+                                                                                                 "x":  72
+                                                                                             },
+                                                                                    "head":  {
+                                                                                                 "y":  4,
+                                                                                                 "width":  266,
+                                                                                                 "height":  282,
+                                                                                                 "x":  28
+                                                                                             },
+                                                                                    "legs":  {
+                                                                                                 "y":  521,
+                                                                                                 "width":  279,
+                                                                                                 "height":  160,
+                                                                                                 "x":  21
+                                                                                             },
+                                                                                    "torso":  {
+                                                                                                  "y":  286,
+                                                                                                  "width":  279,
+                                                                                                  "height":  235,
+                                                                                                  "x":  21
+                                                                                              }
+                                                                                }
+                                                              },
+                                                              {
+                                                                  "overall":  {
+                                                                                  "y":  4,
+                                                                                  "width":  321,
+                                                                                  "height":  759,
+                                                                                  "x":  0
+                                                                              },
+                                                                  "frameIndex":  2,
+                                                                  "landmarks":  {
+                                                                                    "feet":  {
+                                                                                                 "y":  681,
+                                                                                                 "width":  267,
+                                                                                                 "height":  82,
+                                                                                                 "x":  21
+                                                                                             },
+                                                                                    "head":  {
+                                                                                                 "y":  4,
+                                                                                                 "width":  255,
+                                                                                                 "height":  282,
+                                                                                                 "x":  26
+                                                                                             },
+                                                                                    "legs":  {
+                                                                                                 "y":  521,
+                                                                                                 "width":  320,
+                                                                                                 "height":  160,
+                                                                                                 "x":  0
+                                                                                             },
+                                                                                    "torso":  {
+                                                                                                  "y":  286,
+                                                                                                  "width":  321,
+                                                                                                  "height":  235,
+                                                                                                  "x":  0
+                                                                                              }
+                                                                                }
+                                                              },
+                                                              {
+                                                                  "overall":  {
+                                                                                  "y":  4,
+                                                                                  "width":  274,
+                                                                                  "height":  759,
+                                                                                  "x":  23
+                                                                              },
+                                                                  "frameIndex":  3,
+                                                                  "landmarks":  {
+                                                                                    "feet":  {
+                                                                                                 "y":  681,
+                                                                                                 "width":  163,
+                                                                                                 "height":  82,
+                                                                                                 "x":  79
+                                                                                             },
+                                                                                    "head":  {
+                                                                                                 "y":  4,
+                                                                                                 "width":  263,
+                                                                                                 "height":  282,
+                                                                                                 "x":  29
+                                                                                             },
+                                                                                    "legs":  {
+                                                                                                 "y":  521,
+                                                                                                 "width":  263,
+                                                                                                 "height":  160,
+                                                                                                 "x":  29
+                                                                                             },
+                                                                                    "torso":  {
+                                                                                                  "y":  286,
+                                                                                                  "width":  274,
+                                                                                                  "height":  235,
+                                                                                                  "x":  23
+                                                                                              }
+                                                                                }
+                                                              }
+                                                          ],
+                                               "direction":  "up",
+                                               "gender":  "female",
+                                               "totalFrames":  4
+                                           },
+                   "base_male_walk_right":  {
+                                                "frames":  [
+                                                               {
+                                                                   "overall":  {
+                                                                                   "y":  4,
+                                                                                   "width":  310,
+                                                                                   "height":  759,
+                                                                                   "x":  5
+                                                                               },
+                                                                   "frameIndex":  0,
+                                                                   "landmarks":  {
+                                                                                     "feet":  {
+                                                                                                  "y":  681,
+                                                                                                  "width":  285,
+                                                                                                  "height":  82,
+                                                                                                  "x":  30
+                                                                                              },
+                                                                                     "head":  {
+                                                                                                  "y":  4,
+                                                                                                  "width":  255,
+                                                                                                  "height":  282,
+                                                                                                  "x":  35
+                                                                                              },
+                                                                                     "legs":  {
+                                                                                                  "y":  521,
+                                                                                                  "width":  286,
+                                                                                                  "height":  160,
+                                                                                                  "x":  5
+                                                                                              },
+                                                                                     "torso":  {
+                                                                                                   "y":  286,
+                                                                                                   "width":  309,
+                                                                                                   "height":  235,
+                                                                                                   "x":  5
+                                                                                               }
+                                                                                 }
+                                                               },
+                                                               {
+                                                                   "overall":  {
+                                                                                   "y":  4,
+                                                                                   "width":  308,
+                                                                                   "height":  759,
+                                                                                   "x":  6
+                                                                               },
+                                                                   "frameIndex":  1,
+                                                                   "landmarks":  {
+                                                                                     "feet":  {
+                                                                                                  "y":  681,
+                                                                                                  "width":  281,
+                                                                                                  "height":  82,
+                                                                                                  "x":  32
+                                                                                              },
+                                                                                     "head":  {
+                                                                                                  "y":  4,
+                                                                                                  "width":  251,
+                                                                                                  "height":  282,
+                                                                                                  "x":  38
+                                                                                              },
+                                                                                     "legs":  {
+                                                                                                  "y":  521,
+                                                                                                  "width":  249,
+                                                                                                  "height":  160,
+                                                                                                  "x":  6
+                                                                                              },
+                                                                                     "torso":  {
+                                                                                                   "y":  286,
+                                                                                                   "width":  308,
+                                                                                                   "height":  235,
+                                                                                                   "x":  6
+                                                                                               }
+                                                                                 }
+                                                               },
+                                                               {
+                                                                   "overall":  {
+                                                                                   "y":  4,
+                                                                                   "width":  305,
+                                                                                   "height":  759,
+                                                                                   "x":  8
+                                                                               },
+                                                                   "frameIndex":  2,
+                                                                   "landmarks":  {
+                                                                                     "feet":  {
+                                                                                                  "y":  681,
+                                                                                                  "width":  267,
+                                                                                                  "height":  82,
+                                                                                                  "x":  34
+                                                                                              },
+                                                                                     "head":  {
+                                                                                                  "y":  4,
+                                                                                                  "width":  252,
+                                                                                                  "height":  282,
+                                                                                                  "x":  37
+                                                                                              },
+                                                                                     "legs":  {
+                                                                                                  "y":  521,
+                                                                                                  "width":  235,
+                                                                                                  "height":  160,
+                                                                                                  "x":  8
+                                                                                              },
+                                                                                     "torso":  {
+                                                                                                   "y":  286,
+                                                                                                   "width":  305,
+                                                                                                   "height":  235,
+                                                                                                   "x":  8
+                                                                                               }
+                                                                                 }
+                                                               },
+                                                               {
+                                                                   "overall":  {
+                                                                                   "y":  4,
+                                                                                   "width":  305,
+                                                                                   "height":  759,
+                                                                                   "x":  8
+                                                                               },
+                                                                   "frameIndex":  3,
+                                                                   "landmarks":  {
+                                                                                     "feet":  {
+                                                                                                  "y":  681,
+                                                                                                  "width":  274,
+                                                                                                  "height":  82,
+                                                                                                  "x":  27
+                                                                                              },
+                                                                                     "head":  {
+                                                                                                  "y":  4,
+                                                                                                  "width":  252,
+                                                                                                  "height":  282,
+                                                                                                  "x":  36
+                                                                                              },
+                                                                                     "legs":  {
+                                                                                                  "y":  521,
+                                                                                                  "width":  240,
+                                                                                                  "height":  160,
+                                                                                                  "x":  8
+                                                                                              },
+                                                                                     "torso":  {
+                                                                                                   "y":  286,
+                                                                                                   "width":  305,
+                                                                                                   "height":  235,
+                                                                                                   "x":  8
+                                                                                               }
+                                                                                 }
+                                                               }
+                                                           ],
+                                                "direction":  "right",
+                                                "gender":  "male",
+                                                "totalFrames":  4
+                                            },
+                   "base_male_walk_down":  {
+                                               "frames":  [
+                                                              {
+                                                                  "overall":  {
+                                                                                  "y":  4,
+                                                                                  "width":  321,
+                                                                                  "height":  759,
+                                                                                  "x":  0
+                                                                              },
+                                                                  "frameIndex":  0,
+                                                                  "landmarks":  {
+                                                                                    "feet":  {
+                                                                                                 "y":  681,
+                                                                                                 "width":  217,
+                                                                                                 "height":  82,
+                                                                                                 "x":  65
+                                                                                             },
+                                                                                    "head":  {
+                                                                                                 "y":  4,
+                                                                                                 "width":  259,
+                                                                                                 "height":  282,
+                                                                                                 "x":  37
+                                                                                             },
+                                                                                    "legs":  {
+                                                                                                 "y":  521,
+                                                                                                 "width":  318,
+                                                                                                 "height":  160,
+                                                                                                 "x":  3
+                                                                                             },
+                                                                                    "torso":  {
+                                                                                                  "y":  286,
+                                                                                                  "width":  321,
+                                                                                                  "height":  235,
+                                                                                                  "x":  0
+                                                                                              }
+                                                                                }
+                                                              },
+                                                              {
+                                                                  "overall":  {
+                                                                                  "y":  4,
+                                                                                  "width":  280,
+                                                                                  "height":  759,
+                                                                                  "x":  20
+                                                                              },
+                                                                  "frameIndex":  1,
+                                                                  "landmarks":  {
+                                                                                    "feet":  {
+                                                                                                 "y":  681,
+                                                                                                 "width":  132,
+                                                                                                 "height":  82,
+                                                                                                 "x":  94
+                                                                                             },
+                                                                                    "head":  {
+                                                                                                 "y":  4,
+                                                                                                 "width":  251,
+                                                                                                 "height":  282,
+                                                                                                 "x":  39
+                                                                                             },
+                                                                                    "legs":  {
+                                                                                                 "y":  521,
+                                                                                                 "width":  259,
+                                                                                                 "height":  160,
+                                                                                                 "x":  30
+                                                                                             },
+                                                                                    "torso":  {
+                                                                                                  "y":  286,
+                                                                                                  "width":  280,
+                                                                                                  "height":  235,
+                                                                                                  "x":  20
+                                                                                              }
+                                                                                }
+                                                              },
+                                                              {
+                                                                  "overall":  {
+                                                                                  "y":  4,
+                                                                                  "width":  321,
+                                                                                  "height":  759,
+                                                                                  "x":  0
+                                                                              },
+                                                                  "frameIndex":  2,
+                                                                  "landmarks":  {
+                                                                                    "feet":  {
+                                                                                                 "y":  681,
+                                                                                                 "width":  226,
+                                                                                                 "height":  82,
+                                                                                                 "x":  58
+                                                                                             },
+                                                                                    "head":  {
+                                                                                                 "y":  4,
+                                                                                                 "width":  259,
+                                                                                                 "height":  282,
+                                                                                                 "x":  30
+                                                                                             },
+                                                                                    "legs":  {
+                                                                                                 "y":  521,
+                                                                                                 "width":  318,
+                                                                                                 "height":  160,
+                                                                                                 "x":  0
+                                                                                             },
+                                                                                    "torso":  {
+                                                                                                  "y":  286,
+                                                                                                  "width":  321,
+                                                                                                  "height":  235,
+                                                                                                  "x":  0
+                                                                                              }
+                                                                                }
+                                                              },
+                                                              {
+                                                                  "overall":  {
+                                                                                  "y":  4,
+                                                                                  "width":  275,
+                                                                                  "height":  759,
+                                                                                  "x":  23
+                                                                              },
+                                                                  "frameIndex":  3,
+                                                                  "landmarks":  {
+                                                                                    "feet":  {
+                                                                                                 "y":  681,
+                                                                                                 "width":  121,
+                                                                                                 "height":  82,
+                                                                                                 "x":  98
+                                                                                             },
+                                                                                    "head":  {
+                                                                                                 "y":  4,
+                                                                                                 "width":  255,
+                                                                                                 "height":  282,
+                                                                                                 "x":  35
+                                                                                             },
+                                                                                    "legs":  {
+                                                                                                 "y":  521,
+                                                                                                 "width":  253,
+                                                                                                 "height":  160,
+                                                                                                 "x":  33
+                                                                                             },
+                                                                                    "torso":  {
+                                                                                                  "y":  286,
+                                                                                                  "width":  275,
+                                                                                                  "height":  235,
+                                                                                                  "x":  23
+                                                                                              }
+                                                                                }
+                                                              }
+                                                          ],
+                                               "direction":  "down",
+                                               "gender":  "male",
+                                               "totalFrames":  4
+                                           },
+                   "base_male_idle":  {
+                                          "frames":  [
+                                                         {
+                                                             "overall":  {
+                                                                             "y":  4,
+                                                                             "width":  268,
+                                                                             "height":  759,
+                                                                             "x":  26
+                                                                         },
+                                                             "frameIndex":  0,
+                                                             "landmarks":  {
+                                                                               "feet":  {
+                                                                                            "y":  681,
+                                                                                            "width":  185,
+                                                                                            "height":  82,
+                                                                                            "x":  47
+                                                                                        },
+                                                                               "head":  {
+                                                                                            "y":  4,
+                                                                                            "width":  267,
+                                                                                            "height":  282,
+                                                                                            "x":  26
+                                                                                        },
+                                                                               "legs":  {
+                                                                                            "y":  521,
+                                                                                            "width":  247,
+                                                                                            "height":  160,
+                                                                                            "x":  37
+                                                                                        },
+                                                                               "torso":  {
+                                                                                             "y":  286,
+                                                                                             "width":  268,
+                                                                                             "height":  235,
+                                                                                             "x":  26
+                                                                                         }
+                                                                           }
+                                                         }
+                                                     ],
+                                          "direction":  "idle",
+                                          "gender":  "male",
+                                          "totalFrames":  1
+                                      },
+                   "base_female_walk_right":  {
+                                                  "frames":  [
+                                                                 {
+                                                                     "overall":  {
+                                                                                     "y":  4,
+                                                                                     "width":  305,
+                                                                                     "height":  759,
+                                                                                     "x":  8
+                                                                                 },
+                                                                     "frameIndex":  0,
+                                                                     "landmarks":  {
+                                                                                       "feet":  {
+                                                                                                    "y":  681,
+                                                                                                    "width":  282,
+                                                                                                    "height":  82,
+                                                                                                    "x":  31
+                                                                                                },
+                                                                                       "head":  {
+                                                                                                    "y":  4,
+                                                                                                    "width":  254,
+                                                                                                    "height":  282,
+                                                                                                    "x":  36
+                                                                                                },
+                                                                                       "legs":  {
+                                                                                                    "y":  521,
+                                                                                                    "width":  293,
+                                                                                                    "height":  160,
+                                                                                                    "x":  8
+                                                                                                },
+                                                                                       "torso":  {
+                                                                                                     "y":  286,
+                                                                                                     "width":  299,
+                                                                                                     "height":  235,
+                                                                                                     "x":  8
+                                                                                                 }
+                                                                                   }
+                                                                 },
+                                                                 {
+                                                                     "overall":  {
+                                                                                     "y":  4,
+                                                                                     "width":  250,
+                                                                                     "height":  759,
+                                                                                     "x":  35
+                                                                                 },
+                                                                     "frameIndex":  1,
+                                                                     "landmarks":  {
+                                                                                       "feet":  {
+                                                                                                    "y":  681,
+                                                                                                    "width":  236,
+                                                                                                    "height":  82,
+                                                                                                    "x":  49
+                                                                                                },
+                                                                                       "head":  {
+                                                                                                    "y":  4,
+                                                                                                    "width":  249,
+                                                                                                    "height":  282,
+                                                                                                    "x":  35
+                                                                                                },
+                                                                                       "legs":  {
+                                                                                                    "y":  521,
+                                                                                                    "width":  197,
+                                                                                                    "height":  160,
+                                                                                                    "x":  37
+                                                                                                },
+                                                                                       "torso":  {
+                                                                                                     "y":  286,
+                                                                                                     "width":  225,
+                                                                                                     "height":  235,
+                                                                                                     "x":  54
+                                                                                                 }
+                                                                                   }
+                                                                 },
+                                                                 {
+                                                                     "overall":  {
+                                                                                     "y":  4,
+                                                                                     "width":  305,
+                                                                                     "height":  759,
+                                                                                     "x":  8
+                                                                                 },
+                                                                     "frameIndex":  2,
+                                                                     "landmarks":  {
+                                                                                       "feet":  {
+                                                                                                    "y":  681,
+                                                                                                    "width":  294,
+                                                                                                    "height":  82,
+                                                                                                    "x":  19
+                                                                                                },
+                                                                                       "head":  {
+                                                                                                    "y":  4,
+                                                                                                    "width":  254,
+                                                                                                    "height":  282,
+                                                                                                    "x":  30
+                                                                                                },
+                                                                                       "legs":  {
+                                                                                                    "y":  521,
+                                                                                                    "width":  247,
+                                                                                                    "height":  160,
+                                                                                                    "x":  8
+                                                                                                },
+                                                                                       "torso":  {
+                                                                                                     "y":  286,
+                                                                                                     "width":  288,
+                                                                                                     "height":  235,
+                                                                                                     "x":  14
+                                                                                                 }
+                                                                                   }
+                                                                 },
+                                                                 {
+                                                                     "overall":  {
+                                                                                     "y":  4,
+                                                                                     "width":  250,
+                                                                                     "height":  759,
+                                                                                     "x":  35
+                                                                                 },
+                                                                     "frameIndex":  3,
+                                                                     "landmarks":  {
+                                                                                       "feet":  {
+                                                                                                    "y":  681,
+                                                                                                    "width":  151,
+                                                                                                    "height":  82,
+                                                                                                    "x":  77
+                                                                                                },
+                                                                                       "head":  {
+                                                                                                    "y":  4,
+                                                                                                    "width":  250,
+                                                                                                    "height":  282,
+                                                                                                    "x":  35
+                                                                                                },
+                                                                                       "legs":  {
+                                                                                                    "y":  521,
+                                                                                                    "width":  162,
+                                                                                                    "height":  160,
+                                                                                                    "x":  88
+                                                                                                },
+                                                                                       "torso":  {
+                                                                                                     "y":  286,
+                                                                                                     "width":  196,
+                                                                                                     "height":  235,
+                                                                                                     "x":  77
+                                                                                                 }
+                                                                                   }
+                                                                 }
+                                                             ],
+                                                  "direction":  "right",
+                                                  "gender":  "female",
+                                                  "totalFrames":  4
+                                              },
+                   "base_female_idle":  {
+                                            "frames":  [
+                                                           {
+                                                               "overall":  {
+                                                                               "y":  4,
+                                                                               "width":  268,
+                                                                               "height":  759,
+                                                                               "x":  26
+                                                                           },
+                                                               "frameIndex":  0,
+                                                               "landmarks":  {
+                                                                                 "feet":  {
+                                                                                              "y":  681,
+                                                                                              "width":  185,
+                                                                                              "height":  82,
+                                                                                              "x":  47
+                                                                                          },
+                                                                                 "head":  {
+                                                                                              "y":  4,
+                                                                                              "width":  268,
+                                                                                              "height":  282,
+                                                                                              "x":  26
+                                                                                          },
+                                                                                 "legs":  {
+                                                                                              "y":  521,
+                                                                                              "width":  246,
+                                                                                              "height":  160,
+                                                                                              "x":  37
+                                                                                          },
+                                                                                 "torso":  {
+                                                                                               "y":  286,
+                                                                                               "width":  257,
+                                                                                               "height":  235,
+                                                                                               "x":  26
+                                                                                           }
+                                                                             }
+                                                           }
+                                                       ],
+                                            "direction":  "idle",
+                                            "gender":  "female",
+                                            "totalFrames":  1
+                                        },
+                   "base_male_walk_up":  {
+                                             "frames":  [
+                                                            {
+                                                                "overall":  {
+                                                                                "y":  4,
+                                                                                "width":  321,
+                                                                                "height":  759,
+                                                                                "x":  0
+                                                                            },
+                                                                "frameIndex":  0,
+                                                                "landmarks":  {
+                                                                                  "feet":  {
+                                                                                               "y":  681,
+                                                                                               "width":  285,
+                                                                                               "height":  82,
+                                                                                               "x":  0
+                                                                                           },
+                                                                                  "head":  {
+                                                                                               "y":  4,
+                                                                                               "width":  234,
+                                                                                               "height":  282,
+                                                                                               "x":  18
+                                                                                           },
+                                                                                  "legs":  {
+                                                                                               "y":  521,
+                                                                                               "width":  304,
+                                                                                               "height":  160,
+                                                                                               "x":  0
+                                                                                           },
+                                                                                  "torso":  {
+                                                                                                "y":  286,
+                                                                                                "width":  321,
+                                                                                                "height":  235,
+                                                                                                "x":  0
+                                                                                            }
+                                                                              }
+                                                            },
+                                                            {
+                                                                "overall":  {
+                                                                                "y":  4,
+                                                                                "width":  283,
+                                                                                "height":  759,
+                                                                                "x":  19
+                                                                            },
+                                                                "frameIndex":  1,
+                                                                "landmarks":  {
+                                                                                  "feet":  {
+                                                                                               "y":  681,
+                                                                                               "width":  206,
+                                                                                               "height":  82,
+                                                                                               "x":  58
+                                                                                           },
+                                                                                  "head":  {
+                                                                                               "y":  4,
+                                                                                               "width":  232,
+                                                                                               "height":  282,
+                                                                                               "x":  51
+                                                                                           },
+                                                                                  "legs":  {
+                                                                                               "y":  521,
+                                                                                               "width":  245,
+                                                                                               "height":  160,
+                                                                                               "x":  19
+                                                                                           },
+                                                                                  "torso":  {
+                                                                                                "y":  286,
+                                                                                                "width":  283,
+                                                                                                "height":  235,
+                                                                                                "x":  19
+                                                                                            }
+                                                                              }
+                                                            },
+                                                            {
+                                                                "overall":  {
+                                                                                "y":  4,
+                                                                                "width":  321,
+                                                                                "height":  759,
+                                                                                "x":  0
+                                                                            },
+                                                                "frameIndex":  2,
+                                                                "landmarks":  {
+                                                                                  "feet":  {
+                                                                                               "y":  681,
+                                                                                               "width":  141,
+                                                                                               "height":  82,
+                                                                                               "x":  59
+                                                                                           },
+                                                                                  "head":  {
+                                                                                               "y":  4,
+                                                                                               "width":  230,
+                                                                                               "height":  282,
+                                                                                               "x":  52
+                                                                                           },
+                                                                                  "legs":  {
+                                                                                               "y":  521,
+                                                                                               "width":  236,
+                                                                                               "height":  160,
+                                                                                               "x":  2
+                                                                                           },
+                                                                                  "torso":  {
+                                                                                                "y":  286,
+                                                                                                "width":  321,
+                                                                                                "height":  235,
+                                                                                                "x":  0
+                                                                                            }
+                                                                              }
+                                                            },
+                                                            {
+                                                                "overall":  {
+                                                                                "y":  4,
+                                                                                "width":  289,
+                                                                                "height":  759,
+                                                                                "x":  16
+                                                                            },
+                                                                "frameIndex":  3,
+                                                                "landmarks":  {
+                                                                                  "feet":  {
+                                                                                               "y":  681,
+                                                                                               "width":  207,
+                                                                                               "height":  82,
+                                                                                               "x":  54
+                                                                                           },
+                                                                                  "head":  {
+                                                                                               "y":  4,
+                                                                                               "width":  232,
+                                                                                               "height":  282,
+                                                                                               "x":  54
+                                                                                           },
+                                                                                  "legs":  {
+                                                                                               "y":  521,
+                                                                                               "width":  245,
+                                                                                               "height":  160,
+                                                                                               "x":  16
+                                                                                           },
+                                                                                  "torso":  {
+                                                                                                "y":  286,
+                                                                                                "width":  289,
+                                                                                                "height":  235,
+                                                                                                "x":  16
+                                                                                            }
+                                                                              }
+                                                            }
+                                                        ],
+                                             "direction":  "up",
+                                             "gender":  "male",
+                                             "totalFrames":  4
+                                         },
+                   "base_female_walk_down":  {
+                                                 "frames":  [
+                                                                {
+                                                                    "overall":  {
+                                                                                    "y":  4,
+                                                                                    "width":  318,
+                                                                                    "height":  759,
+                                                                                    "x":  1
+                                                                                },
+                                                                    "frameIndex":  0,
+                                                                    "landmarks":  {
+                                                                                      "feet":  {
+                                                                                                   "y":  681,
+                                                                                                   "width":  222,
+                                                                                                   "height":  82,
+                                                                                                   "x":  33
+                                                                                               },
+                                                                                      "head":  {
+                                                                                                   "y":  4,
+                                                                                                   "width":  247,
+                                                                                                   "height":  282,
+                                                                                                   "x":  40
+                                                                                               },
+                                                                                      "legs":  {
+                                                                                                   "y":  521,
+                                                                                                   "width":  227,
+                                                                                                   "height":  160,
+                                                                                                   "x":  84
+                                                                                               },
+                                                                                      "torso":  {
+                                                                                                    "y":  286,
+                                                                                                    "width":  318,
+                                                                                                    "height":  235,
+                                                                                                    "x":  1
+                                                                                                }
+                                                                                  }
+                                                                },
+                                                                {
+                                                                    "overall":  {
+                                                                                    "y":  4,
+                                                                                    "width":  275,
+                                                                                    "height":  759,
+                                                                                    "x":  23
+                                                                                },
+                                                                    "frameIndex":  1,
+                                                                    "landmarks":  {
+                                                                                      "feet":  {
+                                                                                                   "y":  681,
+                                                                                                   "width":  100,
+                                                                                                   "height":  82,
+                                                                                                   "x":  105
+                                                                                               },
+                                                                                      "head":  {
+                                                                                                   "y":  4,
+                                                                                                   "width":  243,
+                                                                                                   "height":  282,
+                                                                                                   "x":  32
+                                                                                               },
+                                                                                      "legs":  {
+                                                                                                   "y":  521,
+                                                                                                   "width":  200,
+                                                                                                   "height":  160,
+                                                                                                   "x":  36
+                                                                                               },
+                                                                                      "torso":  {
+                                                                                                    "y":  286,
+                                                                                                    "width":  275,
+                                                                                                    "height":  235,
+                                                                                                    "x":  23
+                                                                                                }
+                                                                                  }
+                                                                },
+                                                                {
+                                                                    "overall":  {
+                                                                                    "y":  4,
+                                                                                    "width":  305,
+                                                                                    "height":  759,
+                                                                                    "x":  8
+                                                                                },
+                                                                    "frameIndex":  2,
+                                                                    "landmarks":  {
+                                                                                      "feet":  {
+                                                                                                   "y":  681,
+                                                                                                   "width":  222,
+                                                                                                   "height":  82,
+                                                                                                   "x":  59
+                                                                                               },
+                                                                                      "head":  {
+                                                                                                   "y":  4,
+                                                                                                   "width":  247,
+                                                                                                   "height":  282,
+                                                                                                   "x":  32
+                                                                                               },
+                                                                                      "legs":  {
+                                                                                                   "y":  521,
+                                                                                                   "width":  291,
+                                                                                                   "height":  160,
+                                                                                                   "x":  9
+                                                                                               },
+                                                                                      "torso":  {
+                                                                                                    "y":  286,
+                                                                                                    "width":  305,
+                                                                                                    "height":  235,
+                                                                                                    "x":  8
+                                                                                                }
+                                                                                  }
+                                                                },
+                                                                {
+                                                                    "overall":  {
+                                                                                    "y":  4,
+                                                                                    "width":  275,
+                                                                                    "height":  759,
+                                                                                    "x":  23
+                                                                                },
+                                                                    "frameIndex":  3,
+                                                                    "landmarks":  {
+                                                                                      "feet":  {
+                                                                                                   "y":  681,
+                                                                                                   "width":  135,
+                                                                                                   "height":  82,
+                                                                                                   "x":  100
+                                                                                               },
+                                                                                      "head":  {
+                                                                                                   "y":  4,
+                                                                                                   "width":  243,
+                                                                                                   "height":  282,
+                                                                                                   "x":  35
+                                                                                               },
+                                                                                      "legs":  {
+                                                                                                   "y":  521,
+                                                                                                   "width":  200,
+                                                                                                   "height":  160,
+                                                                                                   "x":  35
+                                                                                               },
+                                                                                      "torso":  {
+                                                                                                    "y":  286,
+                                                                                                    "width":  275,
+                                                                                                    "height":  235,
+                                                                                                    "x":  23
+                                                                                                }
+                                                                                  }
+                                                                }
+                                                            ],
+                                                 "direction":  "down",
+                                                 "gender":  "female",
+                                                 "totalFrames":  4
+                                             }
+               }
+}

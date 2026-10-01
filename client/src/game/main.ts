@@ -5,6 +5,7 @@ import { SyncedObject } from "@/lib/objects";
 export interface FurnitureCallbacks {
   onEmptyFloorClick: (x: number, y: number) => void;
   onFurnitureClick: (object: SyncedObject) => void;
+  onLocalAvatarClick?: () => void;
 }
 
 export function createGame(
@@ -25,6 +26,9 @@ export function createGame(
     physics: {
       default: "arcade",
       arcade: { gravity: { x: 0, y: 0 }, debug: false },
+    },
+    input: {
+      windowEvents: false,
     },
     scene: [new MainScene(room, callbacks)],
   });

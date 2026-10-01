@@ -6,6 +6,8 @@ import { Schema, MapSchema, type } from "@colyseus/schema";
  */
 export class Player extends Schema {
   @type("string") username: string = "guest";
+  @type("string") character: string = "FEMALE";
+  @type("string") equippedOutfit: string = "{}";
   @type("number") x: number = 400;
   @type("number") y: number = 300;
   @type("string") direction: string = "down"; // up | down | left | right

@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { prisma } from "../db";
-import { hashPassword, verifyPassword, signToken, verifyToken } from "../auth";
+import { hashPassword, verifyPassword, signToken, verifyToken, AuthTokenPayload } from "../auth";
 
 export const authRouter = Router();
 
 export interface AuthenticatedRequest extends Request {
-  user: { userId: string; username: string };
+  user: AuthTokenPayload;
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -25,12 +25,17 @@ const USERNAME_RE = /^[a-zA-Z0-9_]{3,20}$/;
 
 authRouter.post("/register", async (req, res) => {
   const { username, password } = req.body ?? {};
+  const rawGender = req.body?.gender ?? req.body?.character ?? "FEMALE";
+  const gender = typeof rawGender === "string" ? rawGender.toUpperCase() : "";
 
   if (typeof username !== "string" || !USERNAME_RE.test(username)) {
     return res.status(400).json({ error: "Username must be 3-20 letters/numbers/underscores." });
   }
   if (typeof password !== "string" || password.length < 8) {
     return res.status(400).json({ error: "Password must be at least 8 characters." });
+  }
+  if (gender !== "MALE" && gender !== "FEMALE") {
+    return res.status(400).json({ error: "Gender must be MALE or FEMALE." });
   }
 
   const existing = await prisma.user.findUnique({ where: { username } });
@@ -40,11 +45,19 @@ authRouter.post("/register", async (req, res) => {
 
   const passwordHash = await hashPassword(password);
   const user = await prisma.user.create({
-    data: { username, passwordHash },
+    data: { username, passwordHash, character: gender },
   });
 
-  const token = signToken({ userId: user.id, username: user.username });
-  res.status(201).json({ token, user: { id: user.id, username: user.username } });
+  const token = signToken({ userId: user.id, username: user.username, character: user.character });
+  res.status(201).json({
+    token,
+    user: {
+      id: user.id,
+      username: user.username,
+      character: user.character,
+      gender: user.character,
+    },
+  });
 });
 
 authRouter.post("/login", async (req, res) => {
@@ -66,6 +79,14 @@ authRouter.post("/login", async (req, res) => {
     return res.status(401).json({ error: "Invalid username or password." });
   }
 
-  const token = signToken({ userId: user.id, username: user.username });
-  res.json({ token, user: { id: user.id, username: user.username } });
+  const token = signToken({ userId: user.id, username: user.username, character: user.character });
+  res.json({
+    token,
+    user: {
+      id: user.id,
+      username: user.username,
+      character: user.character,
+      gender: user.character,
+    },
+  });
 });
