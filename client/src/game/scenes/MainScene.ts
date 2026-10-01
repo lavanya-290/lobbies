@@ -337,7 +337,7 @@ export class MainScene extends Phaser.Scene {
       this.syncFurnitureFromState();
       this.room.onStateChange(this.syncFurnitureFromState);
 
-      this.room.state.players.onAdd = (player: any, sessionId: string) => {
+      this.room.state.players.onAdd((player: any, sessionId: string) => {
         if (sessionId === this.room?.sessionId) {
           if (player.character) {
             const char = player.character.toLowerCase() === "male" ? "male" : "female";
@@ -419,9 +419,9 @@ export class MainScene extends Phaser.Scene {
             } catch {}
           }
         });
-      };
+      });
 
-      this.room.state.players.onRemove = (_player: any, sessionId: string) => {
+      this.room.state.players.onRemove((_player: any, sessionId: string) => {
         const avatar = this.remoteAvatars.get(sessionId);
         if (!avatar) return;
         avatar.outfitSprites.forEach((s) => s.destroy());
@@ -429,7 +429,7 @@ export class MainScene extends Phaser.Scene {
         avatar.sprite.destroy();
         avatar.label.destroy();
         this.remoteAvatars.delete(sessionId);
-      };
+      });
 
     } catch (err) {
       console.error("[MainScene] failed to connect to Colyseus server:", err);
