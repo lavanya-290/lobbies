@@ -4,6 +4,7 @@ import { getToken, getUsername, getCharacter, getGender } from "@/lib/auth";
 import { SyncedObject } from "@/lib/objects";
 import { OUTFIT_ITEMS } from "@/lib/outfits";
 import type { FurnitureCallbacks } from "../main";
+import { FLOOR_TILES, getHouseFloorTile } from "@/lib/floors";
 
 const SPEED = 180;
 // Character scale factor: maps normalized ~767px sprites to ~91px display height on 128px tiles
@@ -117,6 +118,11 @@ export class MainScene extends Phaser.Scene {
         });
       }
     });
+
+    // Preload unique floor tile plan textures
+    FLOOR_TILES.forEach((f) => {
+      this.load.image(f.key, f.path);
+    });
   }
 
   private createCharacterAnimations(gender: "female" | "male") {
@@ -180,16 +186,46 @@ export class MainScene extends Phaser.Scene {
     this.createCharacterAnimations("male");
     this.createOutfitAnimations();
 
-    this.add.rectangle(400, 300, 800, 600, 0x2d2d3a).setInteractive().on("pointerdown", (pointer: Phaser.Input.Pointer) => {
-      if (pointer.leftButtonDown()) this.callbacks.onEmptyFloorClick(pointer.x, pointer.y);
-    });
+    this.cameras.main.setBackgroundColor("#181824");
+
+    // Background click catcher
+    this.add.rectangle(400, 300, 800, 600, 0x181824, 0)
+      .setInteractive()
+      .on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+        if (pointer.leftButtonDown()) this.callbacks.onEmptyFloorClick(pointer.x, pointer.y);
+      });
+
+    // Generate unique square isometric floor for this house/room
+    const floorDef = getHouseFloorTile(this.roomData.roomId || this.roomData.houseId || "default");
+    const GRID_SIZE = 7;
+    const originX = 400;
+    const originY = 120;
+
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        const isoX = originX + (c - r) * 64;
+        const isoY = originY + (c + r) * 32;
+        const tile = this.add.image(isoX, isoY, floorDef.key);
+        tile.setOrigin(0.5, 0.5);
+        tile.setDepth(1);
+        tile.setInteractive({ useHandCursor: true });
+        tile.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+          if (pointer.leftButtonDown()) {
+            this.callbacks.onEmptyFloorClick(pointer.x, pointer.y);
+          }
+        });
+      }
+    }
 
     this.add
-      .text(8, 8, "Phase 1 — Animated Chibi Characters (Click character for Wardrobe)", {
+      .text(12, 12, `🏡 Floor: ${floorDef.name} • (Click character for Wardrobe)`, {
         fontSize: "12px",
-        color: "#888",
+        color: "#cbd5e1",
+        backgroundColor: "rgba(15, 23, 42, 0.75)",
+        padding: { x: 8, y: 4 },
       })
-      .setScrollFactor(0);
+      .setScrollFactor(0)
+      .setDepth(30);
 
     await this.connect();
   }
