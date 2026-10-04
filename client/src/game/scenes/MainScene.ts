@@ -335,100 +335,10 @@ export class MainScene extends Phaser.Scene {
       this.localLabel.setDepth(20);
 
       this.syncFurnitureFromState();
-      this.room.onStateChange(this.syncFurnitureFromState);
-
-      this.room.state.players.onAdd((player: any, sessionId: string) => {
-        if (sessionId === this.room?.sessionId) {
-          if (player.character) {
-            const char = player.character.toLowerCase() === "male" ? "male" : "female";
-            if (char !== this.localCharacter) {
-              this.localCharacter = char;
-              this.localAvatar?.setTexture(`${char}_idle`);
-              this.localAvatar?.play(`${char}_idle`);
-            }
-          }
-          if (player.equippedOutfit) {
-            try {
-              this.localOutfit = JSON.parse(player.equippedOutfit);
-              this.syncOutfitLayers(this.localAvatar, this.localOutfitSprites, this.localOutfit, true);
-            } catch {}
-          }
-          player.onChange(() => {
-            if (player.equippedOutfit) {
-              try {
-                this.localOutfit = JSON.parse(player.equippedOutfit);
-                this.syncOutfitLayers(this.localAvatar, this.localOutfitSprites, this.localOutfit, true);
-              } catch {}
-            }
-          });
-          return;
-        }
-
-        const charType: "female" | "male" = (player.character?.toLowerCase() === "male" ? "male" : "female");
-        const sprite = this.add.sprite(player.x, player.y, `${charType}_idle`);
-        sprite.setScale(AVATAR_SCALE);
-        sprite.setOrigin(0.5, 1);
-        sprite.setDepth(10);
-        sprite.play(`${charType}_idle`);
-
-        const label = this.add.text(
-          player.x,
-          player.y - (759 * AVATAR_SCALE) - 6,
-          player.username,
-          { fontSize: "11px", color: "#fff" }
-        ).setOrigin(0.5);
-        label.setDepth(20);
-
-        let remoteOutfit: Record<string, string> = {};
-        try {
-          remoteOutfit = player.equippedOutfit ? JSON.parse(player.equippedOutfit) : {};
-        } catch {}
-
-        const outfitSprites = new Map<string, Phaser.GameObjects.Sprite>();
-        this.syncOutfitLayers(sprite, outfitSprites, remoteOutfit, false);
-
-        const avatar: RemoteAvatar = {
-          sprite,
-          outfitSprites,
-          label,
-          targetX: player.x,
-          targetY: player.y,
-          character: charType,
-          equippedOutfit: remoteOutfit,
-          direction: player.direction ?? "down",
-          moving: !!player.moving,
-        };
-        this.remoteAvatars.set(sessionId, avatar);
-
-        player.onChange(() => {
-          avatar.targetX = player.x;
-          avatar.targetY = player.y;
-          if (player.direction) avatar.direction = player.direction;
-          avatar.moving = !!player.moving;
-          if (player.character) {
-            const newChar: "female" | "male" = player.character.toLowerCase() === "male" ? "male" : "female";
-            if (newChar !== avatar.character) {
-              avatar.character = newChar;
-              avatar.sprite.setTexture(`${newChar}_idle`);
-            }
-          }
-          if (player.equippedOutfit) {
-            try {
-              avatar.equippedOutfit = JSON.parse(player.equippedOutfit);
-              this.syncOutfitLayers(avatar.sprite, avatar.outfitSprites, avatar.equippedOutfit, false);
-            } catch {}
-          }
-        });
-      });
-
-      this.room.state.players.onRemove((_player: any, sessionId: string) => {
-        const avatar = this.remoteAvatars.get(sessionId);
-        if (!avatar) return;
-        avatar.outfitSprites.forEach((s) => s.destroy());
-        avatar.outfitSprites.clear();
-        avatar.sprite.destroy();
-        avatar.label.destroy();
-        this.remoteAvatars.delete(sessionId);
+      this.syncPlayersFromState();
+      this.room.onStateChange(() => {
+        this.syncFurnitureFromState();
+        this.syncPlayersFromState();
       });
 
     } catch (err) {
@@ -468,6 +378,107 @@ export class MainScene extends Phaser.Scene {
       if (liveIds.has(objectId)) return;
       rect.destroy();
       this.furniture.delete(objectId);
+    });
+  };
+
+  private syncPlayersFromState = () => {
+    if (!this.room || !this.room.state?.players) return;
+
+    const liveSessionIds = new Set<string>();
+
+    this.room.state.players.forEach((player: any, sessionId: string) => {
+      liveSessionIds.add(sessionId);
+
+      // Local player sync
+      if (sessionId === this.room?.sessionId) {
+        if (player.character) {
+          const char = player.character.toLowerCase() === "male" ? "male" : "female";
+          if (char !== this.localCharacter) {
+            this.localCharacter = char;
+            this.localAvatar?.setTexture(`${char}_idle`);
+            this.localAvatar?.play(`${char}_idle`);
+          }
+        }
+        if (player.equippedOutfit) {
+          try {
+            const outfit = JSON.parse(player.equippedOutfit);
+            if (JSON.stringify(outfit) !== JSON.stringify(this.localOutfit)) {
+              this.localOutfit = outfit;
+              this.syncOutfitLayers(this.localAvatar, this.localOutfitSprites, this.localOutfit, true);
+            }
+          } catch {}
+        }
+        return;
+      }
+
+      // Remote player sync
+      let avatar = this.remoteAvatars.get(sessionId);
+      if (!avatar) {
+        const charType: "female" | "male" = player.character?.toLowerCase() === "male" ? "male" : "female";
+        const sprite = this.add.sprite(player.x, player.y, `${charType}_idle`);
+        sprite.setScale(AVATAR_SCALE);
+        sprite.setOrigin(0.5, 1);
+        sprite.setDepth(10);
+        sprite.play(`${charType}_idle`);
+
+        const label = this.add
+          .text(player.x, player.y - 759 * AVATAR_SCALE - 6, player.username, { fontSize: "11px", color: "#fff" })
+          .setOrigin(0.5);
+        label.setDepth(20);
+
+        let remoteOutfit: Record<string, string> = {};
+        try {
+          remoteOutfit = player.equippedOutfit ? JSON.parse(player.equippedOutfit) : {};
+        } catch {}
+
+        const outfitSprites = new Map<string, Phaser.GameObjects.Sprite>();
+        this.syncOutfitLayers(sprite, outfitSprites, remoteOutfit, false);
+
+        avatar = {
+          sprite,
+          outfitSprites,
+          label,
+          targetX: player.x,
+          targetY: player.y,
+          character: charType,
+          equippedOutfit: remoteOutfit,
+          direction: player.direction ?? "down",
+          moving: !!player.moving,
+        };
+        this.remoteAvatars.set(sessionId, avatar);
+      } else {
+        avatar.targetX = player.x;
+        avatar.targetY = player.y;
+        if (player.direction) avatar.direction = player.direction;
+        avatar.moving = !!player.moving;
+
+        if (player.character) {
+          const newChar: "female" | "male" = player.character.toLowerCase() === "male" ? "male" : "female";
+          if (newChar !== avatar.character) {
+            avatar.character = newChar;
+            avatar.sprite.setTexture(`${newChar}_idle`);
+          }
+        }
+        if (player.equippedOutfit) {
+          try {
+            const newOutfit = JSON.parse(player.equippedOutfit);
+            if (JSON.stringify(newOutfit) !== JSON.stringify(avatar.equippedOutfit)) {
+              avatar.equippedOutfit = newOutfit;
+              this.syncOutfitLayers(avatar.sprite, avatar.outfitSprites, avatar.equippedOutfit, false);
+            }
+          } catch {}
+        }
+      }
+    });
+
+    // Remove any departed players
+    this.remoteAvatars.forEach((avatar, sessionId) => {
+      if (liveSessionIds.has(sessionId)) return;
+      avatar.outfitSprites.forEach((s) => s.destroy());
+      avatar.outfitSprites.clear();
+      avatar.sprite.destroy();
+      avatar.label.destroy();
+      this.remoteAvatars.delete(sessionId);
     });
   };
 
