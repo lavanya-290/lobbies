@@ -81,7 +81,23 @@ export default function HousesPage() {
 
   return (
     <main style={{ display: "flex", flexDirection: "column", gap: 16, padding: 24, maxWidth: 640, margin: "0 auto" }}>
-      <h1>Houses</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h1 style={{ margin: 0 }}>Houses</h1>
+        <button
+          onClick={() => router.push("/world")}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#2e7d32",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontWeight: "600",
+          }}
+        >
+          Explore Town Map (Preview) →
+        </button>
+      </div>
       {houses.map((house) => (
         <section key={house.id} style={{ border: "1px solid #444", padding: 16 }}>
           <h2 style={{ marginTop: 0 }}>House</h2>
