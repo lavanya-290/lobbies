@@ -4,16 +4,18 @@ const SERVER_HTTP_URL =
   process.env.NEXT_PUBLIC_SERVER_HTTP_URL ?? "http://localhost:2567";
 
 export interface AssetMetadata {
-  placeholderColor: string;
+  placeholderColor?: string;
   label: string;
   width: number;
   height: number;
+  sourceUrl?: string;
 }
 
 export interface FurnitureAsset {
   id: string;
   type: "HANDMADE" | "PROCEDURAL" | "BOOK" | "UPLOAD";
   metadata: AssetMetadata | null;
+  sourceUrl?: string | null;
 }
 
 export interface PlacedObject {
@@ -34,11 +36,13 @@ export interface SyncedObject {
   x: number;
   y: number;
   rotation: number;
-  placeholderColor: string;
+  placeholderColor?: string;
   width: number;
   height: number;
   label: string;
   placedById: string;
+  sourceUrl?: string | null;
+  state?: string;
 }
 
 async function request(path: string, options?: RequestInit) {

@@ -63,3 +63,15 @@ export async function joinHouse(houseId: string, inviteCode: string): Promise<{ 
     body: JSON.stringify({ inviteCode: inviteCode.trim() }),
   });
 }
+
+export async function updateRoomCustomization(
+  houseId: string,
+  roomId: string,
+  customization: { floorTile?: string; wallStyle?: string; roomName?: string }
+): Promise<any> {
+  return request(`/houses/${houseId}/rooms/${roomId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(customization),
+  });
+}

@@ -61,8 +61,9 @@ export class WorldScene extends Phaser.Scene {
   private localCharacter: "female" | "male" = "female";
   private lastDirection: "up" | "down" | "left" | "right" = "down";
   private lastSent = { x: 0, y: 0, moving: false };
-
   private remoteAvatars = new Map<string, RemoteWorldAvatar>();
+  private isDestroyed = false;
+  private beforeUnloadHandler = () => this.leaveRoom();
 
   constructor() {
     super("WorldScene");
@@ -277,7 +278,13 @@ export class WorldScene extends Phaser.Scene {
     this.createAnimations("male");
     this.createOutfitAnimations();
 
-    // 5. Input Controls
+    // 5. Input Controls & Lifecycle
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.leaveRoom());
+    this.events.once(Phaser.Scenes.Events.DESTROY, () => this.leaveRoom());
+    if (typeof window !== "undefined") {
+      window.addEventListener("beforeunload", this.beforeUnloadHandler);
+    }
+
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = this.input.keyboard!.addKeys("W,A,S,D") as typeof this.wasd;
 
@@ -317,7 +324,12 @@ export class WorldScene extends Phaser.Scene {
     try {
       const token = getToken();
       const username = getUsername() ?? `guest-${Math.floor(Math.random() * 1000)}`;
-      this.room = await this.client.joinOrCreate("world", { token, username });
+      const room = await this.client.joinOrCreate("world", { token, username });
+      if (this.isDestroyed) {
+        room.leave();
+        return;
+      }
+      this.room = room;
 
       await new Promise<void>((resolve) => {
         this.room!.onStateChange(() => resolve());
@@ -669,6 +681,22 @@ export class WorldScene extends Phaser.Scene {
         });
         this.lastSent = { x: this.localAvatar.x, y: this.localAvatar.y, moving };
       }
+    }
+  }
+
+  public leaveRoom() {
+    this.isDestroyed = true;
+    if (typeof window !== "undefined") {
+      window.removeEventListener("beforeunload", this.beforeUnloadHandler);
+    }
+    if (this.room) {
+      try {
+        console.log(`[WorldScene] Leaving world room ${this.room.roomId} (${this.room.sessionId})...`);
+        this.room.leave();
+      } catch (err) {
+        console.warn("[WorldScene] Error leaving room:", err);
+      }
+      this.room = undefined;
     }
   }
 }

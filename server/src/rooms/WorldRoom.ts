@@ -95,6 +95,24 @@ export class WorldRoom extends Room<WorldState> {
   }
 
   async onJoin(client: Client, _options: JoinOptions, auth: any) {
+    if (auth.userId) {
+      for (const [existingSessionId, existingAuth] of this.clientUsers.entries()) {
+        if (existingAuth.userId === auth.userId && existingSessionId !== client.sessionId) {
+          console.log(`[WorldRoom] Evicting stale session ${existingSessionId} for user ${auth.username} (${auth.userId})`);
+          this.state.players.delete(existingSessionId);
+          this.clientUsers.delete(existingSessionId);
+          const staleClient = this.clients.find((c) => c.sessionId === existingSessionId);
+          if (staleClient) {
+            try {
+              staleClient.leave(4000);
+            } catch (e) {
+              console.warn(`[WorldRoom] Could not terminate stale client ${existingSessionId}:`, e);
+            }
+          }
+        }
+      }
+    }
+
     this.clientUsers.set(client.sessionId, auth);
     const player = new Player();
     player.username = auth.username;

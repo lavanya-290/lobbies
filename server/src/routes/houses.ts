@@ -102,3 +102,34 @@ housesRouter.post("/:houseId/rooms/personal", async (req, res) => {
   });
   res.json(room);
 });
+
+housesRouter.patch("/:houseId/rooms/:roomId", async (req, res) => {
+  const { userId } = (req as unknown as AuthenticatedRequest).user;
+  const house = await findHouseForMember(userId, req.params.houseId);
+  if (!house) return res.status(404).json({ error: "House not found or access denied." });
+
+  const room = await prisma.room.findFirst({
+    where: { id: req.params.roomId, houseId: house.id },
+  });
+  if (!room) return res.status(404).json({ error: "Room not found." });
+  if (room.type === "PERSONAL" && room.ownerId !== userId && house.ownerId !== userId) {
+    return res.status(403).json({ error: "Not authorized to customize this room." });
+  }
+
+  let customConfig: any = {};
+  if (room.tilemapRef && room.tilemapRef.startsWith("{")) {
+    try { customConfig = JSON.parse(room.tilemapRef); } catch {}
+  }
+
+  if (typeof req.body?.floorTile === "string") customConfig.floorTile = req.body.floorTile;
+  if (typeof req.body?.wallStyle === "string") customConfig.wallStyle = req.body.wallStyle;
+  if (typeof req.body?.roomName === "string" && req.body.roomName.trim().length > 0) {
+    customConfig.roomName = req.body.roomName.trim().slice(0, 50);
+  }
+
+  const updated = await prisma.room.update({
+    where: { id: room.id },
+    data: { tilemapRef: JSON.stringify(customConfig) },
+  });
+  res.json({ id: updated.id, tilemapRef: updated.tilemapRef, customization: customConfig });
+});

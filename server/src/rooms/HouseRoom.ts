@@ -42,6 +42,42 @@ export class HouseRoom extends Room<HouseState> {
     this.dbRoomId = options.dbRoomId ?? "";
     this.setState(new HouseState());
 
+    // Load room customization from DB tilemapRef (supports JSON customization config)
+    try {
+      const room = await prisma.room.findUnique({
+        where: { id: this.dbRoomId },
+        include: { house: true },
+      });
+      let customData: any = {};
+      if (room?.tilemapRef && room.tilemapRef.startsWith("{")) {
+        try {
+          customData = JSON.parse(room.tilemapRef);
+        } catch {}
+      }
+      const legacyFloorMap: Record<string, string> = {
+        floor_wood_oak: "floor_thick_wood_timber",
+        floor_wood_mahogany: "floor_thick_wood_walnut",
+        floor_tile_ceramic: "floor_thick_marble_white",
+        floor_tile_checker: "floor_thick_marble_polished",
+        floor_pattern_carpet: "floor_thick_wood_oak",
+        floor_pattern_mosaic: "floor_thick_marble_white",
+        floor_brick_terracotta: "floor_thick_brick_terracotta",
+        floor_stone_slate: "floor_thick_stone_slate",
+        floor_stone_cobble: "floor_thick_stone_cobble",
+        floor_metal_steel: "floor_thick_stone_granite",
+        floor_grill_deck: "floor_thick_wood_rustic",
+        floor_grass_garden: "floor_thick_nature_grass",
+        floor_flora_meadow: "floor_thick_nature_meadow",
+        floor_ice_crystal: "floor_thick_water_pool",
+      };
+      const rawFloor = customData.floorTile;
+      this.state.floorTile = rawFloor ? (legacyFloorMap[rawFloor] || rawFloor) : "floor_thick_wood_timber";
+      this.state.wallStyle = customData.wallStyle || "wood";
+      this.state.roomName = customData.roomName || (room?.type === "PERSONAL" ? "Personal Bedroom" : "Shared Living Room");
+    } catch (e) {
+      console.warn("[HouseRoom] Could not load room customization:", e);
+    }
+
     const existingObjects = await listRoomObjects(this.dbRoomId);
     for (const object of existingObjects) this.addSyncedObject(object);
 
@@ -49,33 +85,66 @@ export class HouseRoom extends Room<HouseState> {
       const player = this.state.players.get(client.sessionId);
       if (!player) return;
 
-      // Trust-but-clamp: Phase 0/1 has no anti-cheat / collision validation yet.
-      player.x = message.x;
-      player.y = message.y;
+      // If player was sitting, automatically stand up when actually moving
+      if (player.state === "sit" && message.moving) {
+        player.state = "idle";
+        player.sittingOnObjectId = "";
+      }
+
+      // Isometric boundary clamping: constrain character strictly within the designated floor tile area
+      const originX = 400;
+      const originY = 120;
+      const dX = message.x - originX;
+      const dY = message.y - originY;
+      const c = Math.max(0.20, Math.min(6.45, dY / 64 + dX / 128));
+      const r = Math.max(0.20, Math.min(6.45, dY / 64 - dX / 128));
+
+      player.x = originX + (c - r) * 64;
+      player.y = originY + (c + r) * 32;
       player.direction = message.direction;
       player.moving = message.moving;
     });
 
     this.onMessage<PlaceObjectMessage>("place_object", async (client, message) => {
+      console.log("[HouseRoom] place_object received from", client.sessionId, message);
       const auth = this.clientUsers.get(client.sessionId);
-      if (!auth || !this.isValidPlacement(message)) return;
+      if (!auth) {
+        console.warn("[HouseRoom] place_object: no auth for session", client.sessionId);
+        return;
+      }
+      if (!this.isValidPlacement(message)) {
+        console.warn("[HouseRoom] place_object: invalid placement", message);
+        return;
+      }
       const access = await getRoomAccess(auth.userId, this.dbRoomId);
-      if (!access) return;
+      if (!access) {
+        console.warn("[HouseRoom] place_object: no room access for user", auth.userId, "in room", this.dbRoomId);
+        return;
+      }
       const asset = await prisma.asset.findUnique({ where: { id: message.assetId } });
-      if (!asset) return;
+      if (!asset) {
+        console.warn("[HouseRoom] place_object: asset not found in db:", message.assetId);
+        return;
+      }
 
-      const object = await prisma.placedObject.create({
-        data: {
-          roomId: this.dbRoomId,
-          assetId: message.assetId,
-          x: message.x,
-          y: message.y,
-          rotation: message.rotation ?? 0,
-          placedById: auth.userId,
-        },
-        include: { asset: true, placedBy: { select: { username: true } } },
-      });
-      this.addSyncedObject(object);
+      try {
+        const object = await prisma.placedObject.create({
+          data: {
+            roomId: this.dbRoomId,
+            assetId: message.assetId,
+            x: message.x,
+            y: message.y,
+            rotation: message.rotation ?? 0,
+            placedById: auth.userId,
+            metadata: { state: "default" },
+          },
+          include: { asset: true, placedBy: { select: { username: true } } },
+        });
+        console.log("[HouseRoom] Placed object created successfully:", object.id, object.assetId);
+        this.addSyncedObject(object);
+      } catch (err) {
+        console.error("[HouseRoom] Failed to create placedObject in DB:", err);
+      }
     });
 
     this.onMessage<RemoveObjectMessage>("remove_object", async (client, message) => {
@@ -88,8 +157,146 @@ export class HouseRoom extends Room<HouseState> {
       });
       if (!object || (object.placedById !== auth.userId && access.house.ownerId !== auth.userId)) return;
 
+      // If anyone is sitting on this object, stand them up
+      this.state.players.forEach((p) => {
+        if (p.sittingOnObjectId === object.id) {
+          p.state = "idle";
+          p.sittingOnObjectId = "";
+        }
+      });
+
       await prisma.placedObject.delete({ where: { id: object.id } });
       this.state.objects.delete(object.id);
+    });
+
+    // Rotate furniture: toggles between SE & SW variants or increments rotation
+    this.onMessage("rotate_object", async (client, message: { objectId: string }) => {
+      console.log("[HouseRoom] rotate_object received from", client.sessionId, message);
+      const auth = this.clientUsers.get(client.sessionId);
+      if (!auth || typeof message?.objectId !== "string") return;
+      const access = await getRoomAccess(auth.userId, this.dbRoomId);
+      if (!access) return;
+
+      const obj = this.state.objects.get(message.objectId);
+      if (!obj) return;
+
+      let nextAssetId = obj.assetId;
+      if (obj.assetId.endsWith("-se")) {
+        nextAssetId = obj.assetId.slice(0, -3) + "-sw";
+      } else if (obj.assetId.endsWith("-sw")) {
+        nextAssetId = obj.assetId.slice(0, -3) + "-se";
+      }
+
+      const counterpart = await prisma.asset.findUnique({ where: { id: nextAssetId } });
+      if (counterpart && nextAssetId !== obj.assetId) {
+        obj.assetId = counterpart.id;
+        obj.sourceUrl = counterpart.sourceUrl || "";
+        const meta = counterpart.metadata as any;
+        if (meta?.label) obj.label = meta.label;
+      } else {
+        // Continuous 90 degree step rotation
+        obj.rotation = (obj.rotation + 90) % 360;
+      }
+
+      await prisma.placedObject.update({
+        where: { id: obj.id },
+        data: {
+          assetId: obj.assetId,
+          rotation: obj.rotation,
+        },
+      });
+    });
+
+    // Move furniture to new coordinates
+    this.onMessage("move_object", async (client, message: { objectId: string; x: number; y: number }) => {
+      const auth = this.clientUsers.get(client.sessionId);
+      if (!auth || typeof message?.objectId !== "string") return;
+      const access = await getRoomAccess(auth.userId, this.dbRoomId);
+      if (!access) return;
+
+      const obj = this.state.objects.get(message.objectId);
+      if (!obj || !Number.isFinite(message.x) || !Number.isFinite(message.y)) return;
+
+      obj.x = message.x;
+      obj.y = message.y;
+
+      await prisma.placedObject.update({
+        where: { id: obj.id },
+        data: { x: obj.x, y: obj.y },
+      });
+    });
+
+    // Toggle interactive state (e.g. lamp on/off)
+    this.onMessage("toggle_object_state", async (client, message: { objectId: string }) => {
+      const auth = this.clientUsers.get(client.sessionId);
+      if (!auth || typeof message?.objectId !== "string") return;
+
+      const obj = this.state.objects.get(message.objectId);
+      if (!obj) return;
+
+      obj.state = obj.state === "on" ? "off" : "on";
+      await prisma.placedObject.update({
+        where: { id: obj.id },
+        data: { metadata: { state: obj.state } },
+      });
+    });
+
+    // Sit on furniture
+    this.onMessage("sit_on_object", (client, message: { objectId: string }) => {
+      const player = this.state.players.get(client.sessionId);
+      const obj = this.state.objects.get(message.objectId);
+      if (!player || !obj) return;
+
+      // Position seat anchor slightly above chair base
+      player.x = obj.x;
+      player.y = obj.y - 10;
+      player.moving = false;
+      player.state = "sit";
+      player.sittingOnObjectId = obj.id;
+
+      // Match player facing direction to chair orientation
+      if (obj.assetId.includes("-se") || obj.assetId.includes("se")) {
+        player.direction = "right";
+      } else if (obj.assetId.includes("-sw") || obj.assetId.includes("sw")) {
+        player.direction = "down";
+      }
+    });
+
+    // Stand up
+    this.onMessage("stand_up", (client) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player) return;
+      player.state = "idle";
+      player.sittingOnObjectId = "";
+    });
+
+    // Room customization: floor, wall, name
+    this.onMessage("customize_room", async (client, message: { floorTile?: string; wallStyle?: string; roomName?: string }) => {
+      const auth = this.clientUsers.get(client.sessionId);
+      if (!auth) return;
+      const access = await getRoomAccess(auth.userId, this.dbRoomId);
+      if (!access) return;
+
+      if (typeof message.floorTile === "string") this.state.floorTile = message.floorTile;
+      if (typeof message.wallStyle === "string") this.state.wallStyle = message.wallStyle;
+      if (typeof message.roomName === "string" && message.roomName.trim().length > 0) {
+        this.state.roomName = message.roomName.trim().slice(0, 50);
+      }
+
+      const customConfig = {
+        floorTile: this.state.floorTile,
+        wallStyle: this.state.wallStyle,
+        roomName: this.state.roomName,
+      };
+
+      try {
+        await prisma.room.update({
+          where: { id: this.dbRoomId },
+          data: { tilemapRef: JSON.stringify(customConfig) },
+        });
+      } catch (err) {
+        console.error("[HouseRoom] Failed to persist room customization:", err);
+      }
     });
 
     this.onMessage("equip_outfit", async (client, message: { category?: string; itemId?: string | null; outfit?: Record<string, string> }) => {
@@ -150,6 +357,8 @@ export class HouseRoom extends Room<HouseState> {
     synced.height = metadata?.height ?? 24;
     synced.label = metadata?.label ?? "Furniture";
     synced.placedById = object.placedById;
+    synced.sourceUrl = object.asset.sourceUrl ?? (metadata as any)?.sourceUrl ?? "";
+    synced.state = ((object.metadata as any)?.state) ?? "default";
     this.state.objects.set(synced.id, synced);
   }
 
@@ -181,6 +390,23 @@ export class HouseRoom extends Room<HouseState> {
   }
 
   async onJoin(client: Client, _options: JoinOptions, auth: AuthTokenPayload) {
+    // Evict any existing session for the same userId
+    for (const [existingSessionId, existingAuth] of this.clientUsers.entries()) {
+      if (existingAuth.userId === auth.userId && existingSessionId !== client.sessionId) {
+        console.log(`[HouseRoom] Evicting stale session ${existingSessionId} for user ${auth.username} (${auth.userId})`);
+        this.state.players.delete(existingSessionId);
+        this.clientUsers.delete(existingSessionId);
+        const staleClient = this.clients.find((c) => c.sessionId === existingSessionId);
+        if (staleClient) {
+          try {
+            staleClient.leave(4000);
+          } catch (e) {
+            console.warn(`[HouseRoom] Could not terminate stale client ${existingSessionId}:`, e);
+          }
+        }
+      }
+    }
+
     this.clientUsers.set(client.sessionId, auth);
     const player = new Player();
     player.username = auth.username;

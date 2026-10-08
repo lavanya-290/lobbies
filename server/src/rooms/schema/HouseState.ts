@@ -12,6 +12,8 @@ export class Player extends Schema {
   @type("number") y: number = 300;
   @type("string") direction: string = "down"; // up | down | left | right
   @type("boolean") moving: boolean = false;
+  @type("string") state: string = "idle"; // "idle" | "walk" | "sit"
+  @type("string") sittingOnObjectId: string = "";
 }
 
 export class SyncedObject extends Schema {
@@ -25,9 +27,14 @@ export class SyncedObject extends Schema {
   @type("number") height: number = 24;
   @type("string") label: string = "Furniture";
   @type("string") placedById: string = "";
+  @type("string") sourceUrl: string = "";
+  @type("string") state: string = "default"; // "default" | "on" | "off"
 }
 
 export class HouseState extends Schema {
   @type({ map: Player }) players = new MapSchema<Player>();
   @type({ map: SyncedObject }) objects = new MapSchema<SyncedObject>();
+  @type("string") floorTile: string = "floor_thick_wood_timber";
+  @type("string") wallStyle: string = "wood";
+  @type("string") roomName: string = "Living Room";
 }

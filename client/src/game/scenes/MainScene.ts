@@ -4,7 +4,8 @@ import { getToken, getUsername, getCharacter, getGender } from "@/lib/auth";
 import { SyncedObject } from "@/lib/objects";
 import { OUTFIT_ITEMS } from "@/lib/outfits";
 import type { FurnitureCallbacks } from "../main";
-import { FLOOR_TILES, getHouseFloorTile } from "@/lib/floors";
+import { FLOOR_TILES, getHouseFloorTile, resolveFloorTileKey, DEFAULT_FLOOR_KEY, LEGACY_FLOOR_MAP } from "@/lib/floors";
+import { WALL_STYLES } from "@/lib/walls";
 
 const SPEED = 180;
 // Character scale factor: maps normalized ~767px sprites to ~91px display height on 128px tiles
@@ -32,6 +33,7 @@ interface RemoteAvatar {
   equippedOutfit: Record<string, string>;
   direction: string;
   moving: boolean;
+  state: string;
 }
 
 interface RoomData {
@@ -41,7 +43,8 @@ interface RoomData {
 
 interface FurnitureView {
   object: SyncedObject;
-  rect: Phaser.GameObjects.Rectangle;
+  display: Phaser.GameObjects.GameObject;
+  rect?: Phaser.GameObjects.Rectangle;
 }
 
 export class MainScene extends Phaser.Scene {
@@ -56,12 +59,25 @@ export class MainScene extends Phaser.Scene {
   private localLabel?: Phaser.GameObjects.Text;
   private localCharacter: "female" | "male" = "female";
   private lastDirection: "up" | "down" | "left" | "right" = "down";
+  private isLocalSitting = false;
+  private sittingOnObjectId = "";
   private remoteAvatars = new Map<string, RemoteAvatar>();
 
   private lastSent = { x: 0, y: 0, moving: false };
   private roomData!: RoomData;
   private furniture = new Map<string, FurnitureView>();
+  private lampGlows = new Map<string, Phaser.GameObjects.Arc[]>();
   private callbacks: FurnitureCallbacks;
+  private isDestroyed = false;
+  private beforeUnloadHandler = () => this.leaveRoom();
+
+  // Floor & Wall state
+  private floorTiles: Phaser.GameObjects.Image[] = [];
+  private nwWallSprites: { sprite: Phaser.GameObjects.Sprite; isWindow: boolean }[] = [];
+  private neWallSprites: { sprite: Phaser.GameObjects.Sprite; isWindow: boolean }[] = [];
+  private currentFloorTile = DEFAULT_FLOOR_KEY;
+  private currentWallStyle = "wood";
+  private currentRoomName = "Living Room";
 
   constructor(roomData: RoomData, callbacks: FurnitureCallbacks) {
     super("MainScene");
@@ -106,7 +122,7 @@ export class MainScene extends Phaser.Scene {
       frameHeight: FRAME_HEIGHT,
     });
 
-    // Preload all modular outfit assets
+    // Modular outfits
     OUTFIT_ITEMS.forEach((item) => {
       this.load.image(`${item.id}_idle`, `/assets/outfits/${item.folder}/${item.id}_idle.png`);
       if (item.hasWalkSheets) {
@@ -119,10 +135,79 @@ export class MainScene extends Phaser.Scene {
       }
     });
 
-    // Preload unique floor tile plan textures
+    // Unique 3D thick floor tile textures
     FLOOR_TILES.forEach((f) => {
       this.load.image(f.key, f.path);
     });
+    // Register legacy keys to point to thick tile textures
+    Object.entries(LEGACY_FLOOR_MAP).forEach(([oldKey, newKey]) => {
+      const def = FLOOR_TILES.find((f) => f.key === newKey);
+      if (def && !this.textures.exists(oldKey)) {
+        this.load.image(oldKey, def.path);
+      }
+    });
+
+    // Wall tile singles
+    this.load.image("wall_wood_se", "/assets/walls/singles/wall_wood_se.png");
+    this.load.image("wall_wood_sw", "/assets/walls/singles/wall_wood_sw.png");
+    this.load.image("wall_wood_window_se", "/assets/walls/singles/wall_wood_window_se.png");
+    this.load.image("wall_wood_window_sw", "/assets/walls/singles/wall_wood_window_sw.png");
+
+    this.load.image("wall_brick_se", "/assets/walls/singles/wall_brick_se.png");
+    this.load.image("wall_brick_sw", "/assets/walls/singles/wall_brick_sw.png");
+    this.load.image("wall_brick_window_se", "/assets/walls/singles/wall_brick_window_se.png");
+    this.load.image("wall_brick_window_sw", "/assets/walls/singles/wall_brick_window_sw.png");
+
+    this.load.image("wall_stone_se", "/assets/walls/singles/wall_stone_se.png");
+    this.load.image("wall_stone_sw", "/assets/walls/singles/wall_stone_sw.png");
+    this.load.image("wall_stone_window_se", "/assets/walls/singles/wall_stone_window_se.png");
+    this.load.image("wall_stone_window_sw", "/assets/walls/singles/wall_stone_window_sw.png");
+
+    // Quirky-eclectic furniture sprites
+    this.load.image("furn_quirky-carpet-swirl", "/assets/furniture/quirky/carpet_swirl.png");
+    this.load.image("furn_quirky-sofa-wave", "/assets/furniture/quirky/sofa_wave.png");
+    this.load.image("furn_quirky-lamp-claw", "/assets/furniture/quirky/lamp_claw.png");
+
+    // Photo-referenced furniture sprites (SE & SW)
+    this.load.image("furn_chair-blue-flower-se", "/assets/furniture/chairs/blue_flower_chair_se.png");
+    this.load.image("furn_chair-blue-flower-sw", "/assets/furniture/chairs/blue_flower_chair_sw.png");
+    this.load.image("furn_chair-blue-leaf-se", "/assets/furniture/chairs/blue_leaf_chair_se.png");
+    this.load.image("furn_chair-blue-leaf-sw", "/assets/furniture/chairs/blue_leaf_chair_sw.png");
+    this.load.image("furn_sofa-heart-se", "/assets/furniture/chairs/heart_sofa_se.png");
+    this.load.image("furn_sofa-heart-sw", "/assets/furniture/chairs/heart_sofa_sw.png");
+    this.load.image("furn_seating-orange-hanging-se", "/assets/furniture/chairs/orange_hanging_seating_se.png");
+    this.load.image("furn_seating-orange-hanging-sw", "/assets/furniture/chairs/orange_hanging_seating_sw.png");
+    this.load.image("furn_chair-red-armchair-se", "/assets/furniture/chairs/red_armchair_se.png");
+    this.load.image("furn_chair-red-armchair-sw", "/assets/furniture/chairs/red_armchair_sw.png");
+    this.load.image("furn_chair-scorpion-se", "/assets/furniture/chairs/scorpion_chair_se.png");
+    this.load.image("furn_chair-scorpion-sw", "/assets/furniture/chairs/scorpion_chair_sw.png");
+
+    // Newly generated sofas & chairs
+    this.load.image("furn_sofa-se", "/assets/furniture/chairs/sofa_se.png");
+    this.load.image("furn_sofa-sw", "/assets/furniture/chairs/sofa_sw.png");
+    this.load.image("furn_chair-yellow-pretty-se", "/assets/furniture/chairs/yellow_pretty_chair_se.png");
+    this.load.image("furn_chair-yellow-pretty-sw", "/assets/furniture/chairs/yellow_pretty_chair_sw.png");
+
+    // Newly generated carpets & rugs
+    this.load.image("furn_carpet-flower-se", "/assets/furniture/carpets/flower_carpet_se.png");
+    this.load.image("furn_carpet-flower-sw", "/assets/furniture/carpets/flower_carpet_sw.png");
+    this.load.image("furn_carpet-pink-splash-se", "/assets/furniture/carpets/pink_splash_rug_se.png");
+    this.load.image("furn_carpet-pink-splash-sw", "/assets/furniture/carpets/pink_splash_rug_sw.png");
+    this.load.image("furn_carpet-simple-circle-se", "/assets/furniture/carpets/simple_circle_rug_se.png");
+    this.load.image("furn_carpet-simple-circle-sw", "/assets/furniture/carpets/simple_circle_rug_sw.png");
+    this.load.image("furn_carpet-simple-rug-se", "/assets/furniture/carpets/simple_rug_se.png");
+    this.load.image("furn_carpet-tiger-se", "/assets/furniture/carpets/tiger_carpet_se.png");
+    this.load.image("furn_carpet-tiger-sw", "/assets/furniture/carpets/tiger_carpet_sw.png");
+
+    // Quirky Bookshelf / Cupboard
+    this.load.image("furn_green-cupboard-quirky-se", "/assets/furniture/quirky/green_cupboard_quirky_se.png");
+    this.load.image("furn_green-cupboard-quirky-sw", "/assets/furniture/quirky/green_cupboard_quirky_sw.png");
+
+    // Houseplants
+    this.load.image("furn_plant-flowering-delicate", "/assets/furniture/houseplants/flowering_delicate_stem.png");
+    this.load.image("furn_plant-desert-cacti", "/assets/furniture/houseplants/desert_cacti_cluster.png");
+    this.load.image("furn_plant-monstera-longleaf", "/assets/furniture/houseplants/monstera_longleaf.png");
+    this.load.image("furn_plant-pothos-money", "/assets/furniture/houseplants/pothos_money_plant.png");
   }
 
   private createCharacterAnimations(gender: "female" | "male") {
@@ -179,6 +264,12 @@ export class MainScene extends Phaser.Scene {
   }
 
   async create() {
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.leaveRoom());
+    this.events.once(Phaser.Scenes.Events.DESTROY, () => this.leaveRoom());
+    if (typeof window !== "undefined") {
+      window.addEventListener("beforeunload", this.beforeUnloadHandler);
+    }
+
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = this.input.keyboard!.addKeys("W,A,S,D") as typeof this.wasd;
 
@@ -188,46 +279,124 @@ export class MainScene extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor("#181824");
 
-    // Background click catcher
+    // Background click catcher (ignoring clicks outside floor tiles)
     this.add.rectangle(400, 300, 800, 600, 0x181824, 0)
       .setInteractive()
-      .on("pointerdown", (pointer: Phaser.Input.Pointer) => {
-        if (pointer.leftButtonDown()) this.callbacks.onEmptyFloorClick(pointer.x, pointer.y);
+      .on("pointerdown", (_pointer: Phaser.Input.Pointer) => {
+        // Void clicks outside floor tiles do not trigger placement
       });
 
-    // Generate unique square isometric floor for this house/room
-    const floorDef = getHouseFloorTile(this.roomData.roomId || this.roomData.houseId || "default");
+    // Determine initial floor tile
+    const defaultFloor = getHouseFloorTile(this.roomData.roomId || this.roomData.houseId || "default");
+    this.currentFloorTile = defaultFloor.key;
+
     const GRID_SIZE = 7;
     const originX = 400;
     const originY = 120;
 
+    // Build floor tiles with 3D slab thickness and depth sorting
+    this.floorTiles = [];
     for (let r = 0; r < GRID_SIZE; r++) {
       for (let c = 0; c < GRID_SIZE; c++) {
         const isoX = originX + (c - r) * 64;
         const isoY = originY + (c + r) * 32;
-        const tile = this.add.image(isoX, isoY, floorDef.key);
-        tile.setOrigin(0.5, 0.5);
-        tile.setDepth(1);
+        const tile = this.add.image(isoX, isoY, this.currentFloorTile);
+        // Thick tile origin (0.5, 32 / 72) places the top diamond surface right at isoY,
+        // leaving the 8px slab skirt extending downward into 3D isometric space
+        tile.setOrigin(0.5, 32 / 72);
+        tile.setDepth(1 + (r + c) * 0.01);
         tile.setInteractive({ useHandCursor: true });
         tile.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
           if (pointer.leftButtonDown()) {
-            this.callbacks.onEmptyFloorClick(pointer.x, pointer.y);
+            this.callbacks.onEmptyFloorClick(isoX, isoY);
           }
         });
+        this.floorTiles.push(tile);
       }
     }
 
-    this.add
-      .text(12, 12, `🏡 Floor: ${floorDef.name} • (Click character for Wardrobe)`, {
-        fontSize: "12px",
-        color: "#cbd5e1",
-        backgroundColor: "rgba(15, 23, 42, 0.75)",
-        padding: { x: 8, y: 4 },
-      })
-      .setScrollFactor(0)
-      .setDepth(30);
+    // Build NW perimeter walls (c = 0, r = 0..GRID_SIZE-1)
+    this.nwWallSprites = [];
+    for (let r = 0; r < GRID_SIZE; r++) {
+      const isoX = originX + (0 - r) * 64;
+      const isoY = originY + (0 + r) * 32;
+      const isWindow = (r === 2 || r === 4);
+      const sprite = this.add.sprite(isoX - 32, isoY, isWindow ? "wall_wood_window_se" : "wall_wood_se");
+      sprite.setOrigin(0.5, 1.0);
+      sprite.setDepth(1.5);
+      this.nwWallSprites.push({ sprite, isWindow });
+    }
+
+    // Build NE perimeter walls (r = 0, c = 0..GRID_SIZE-1)
+    this.neWallSprites = [];
+    for (let c = 0; c < GRID_SIZE; c++) {
+      const isoX = originX + (c - 0) * 64;
+      const isoY = originY + (c + 0) * 32;
+      const isWindow = (c === 2 || c === 4);
+      const sprite = this.add.sprite(isoX + 32, isoY, isWindow ? "wall_wood_window_sw" : "wall_wood_sw");
+      sprite.setOrigin(0.5, 1.0);
+      sprite.setDepth(1.5);
+      this.neWallSprites.push({ sprite, isWindow });
+    }
 
     await this.connect();
+  }
+
+  public updateFloorTile(floorKey: string) {
+    const resolvedKey = resolveFloorTileKey(floorKey);
+    if (!this.textures.exists(resolvedKey)) return;
+    this.currentFloorTile = resolvedKey;
+    this.floorTiles.forEach((tile) => {
+      tile.setTexture(resolvedKey);
+      tile.setOrigin(0.5, 32 / 72);
+    });
+  }
+
+  /**
+   * Clamps a 2D screen coordinate to stay strictly within the designated
+   * 7x7 isometric floor tile area, preventing characters from walking into the void.
+   */
+  public clampToFloor(x: number, y: number): { x: number; y: number } {
+    const originX = 400;
+    const originY = 120;
+    const dX = x - originX;
+    const dY = y - originY;
+    let c = dY / 64 + dX / 128;
+    let r = dY / 64 - dX / 128;
+
+    // Designated floor area limits (safe margin from wall baseboard to front slab edge)
+    const MIN_R = 0.20;
+    const MAX_R = 6.45;
+    const MIN_C = 0.20;
+    const MAX_C = 6.45;
+
+    c = Phaser.Math.Clamp(c, MIN_C, MAX_C);
+    r = Phaser.Math.Clamp(r, MIN_R, MAX_R);
+
+    return {
+      x: originX + (c - r) * 64,
+      y: originY + (c + r) * 32,
+    };
+  }
+
+  public updateWallStyle(wallKey: string) {
+    this.currentWallStyle = wallKey;
+    if (wallKey === "none") {
+      this.nwWallSprites.forEach(({ sprite }) => sprite.setVisible(false));
+      this.neWallSprites.forEach(({ sprite }) => sprite.setVisible(false));
+      return;
+    }
+    const def = WALL_STYLES.find((w) => w.key === wallKey) || WALL_STYLES[0];
+    this.nwWallSprites.forEach(({ sprite, isWindow }) => {
+      sprite.setVisible(true);
+      const key = isWindow ? def.seWindowKey : def.sePlainKey;
+      if (this.textures.exists(key)) sprite.setTexture(key);
+    });
+    this.neWallSprites.forEach(({ sprite, isWindow }) => {
+      sprite.setVisible(true);
+      const key = isWindow ? def.swWindowKey : def.swPlainKey;
+      if (this.textures.exists(key)) sprite.setTexture(key);
+    });
   }
 
   public equipOutfit(outfit: Record<string, string>) {
@@ -240,6 +409,49 @@ export class MainScene extends Phaser.Scene {
     return { ...this.localOutfit };
   }
 
+  public rotateObject(objectId: string) {
+    this.room?.send("rotate_object", { objectId });
+  }
+
+  public moveObject(objectId: string, x: number, y: number) {
+    this.room?.send("move_object", { objectId, x, y });
+  }
+
+  public toggleObjectState(objectId: string) {
+    this.room?.send("toggle_object_state", { objectId });
+  }
+
+  public getFurniture(objectId: string): SyncedObject | undefined {
+    return this.furniture.get(objectId)?.object;
+  }
+
+  public sitOnObject(objectId: string) {
+    this.room?.send("sit_on_object", { objectId });
+  }
+
+  public standUp() {
+    this.room?.send("stand_up");
+    if (this.isLocalSitting) {
+      this.isLocalSitting = false;
+      this.sittingOnObjectId = "";
+      this.localAvatar?.setDepth(10);
+      this.callbacks.onRoomStateChange?.({
+        floorTile: this.currentFloorTile,
+        wallStyle: this.currentWallStyle,
+        roomName: this.currentRoomName,
+        isSitting: false,
+        sittingOnObjectId: "",
+      });
+    }
+  }
+
+  public customizeRoom(config: { floorTile?: string; wallStyle?: string; roomName?: string }) {
+    if (config.floorTile) this.updateFloorTile(config.floorTile);
+    if (config.wallStyle) this.updateWallStyle(config.wallStyle);
+    if (config.roomName) this.currentRoomName = config.roomName;
+    this.room?.send("customize_room", config);
+  }
+
   private syncOutfitLayers(
     baseSprite: Phaser.GameObjects.Sprite | undefined,
     layerMap: Map<string, Phaser.GameObjects.Sprite>,
@@ -248,7 +460,6 @@ export class MainScene extends Phaser.Scene {
   ) {
     if (!baseSprite) return;
 
-    // Full body (dress) overrides both top and bottom
     const activeCategories: string[] = outfit.dress
       ? ["dress", "headwear", "footwear", "face_accessory"]
       : ["top", "bottom", "headwear", "footwear", "face_accessory"];
@@ -260,7 +471,6 @@ export class MainScene extends Phaser.Scene {
       }
     }
 
-    // Remove unequipped or changed layers
     for (const [cat, sprite] of Array.from(layerMap.entries())) {
       const targetId = targetItems.get(cat);
       if (!targetId || sprite.getData("itemId") !== targetId) {
@@ -269,7 +479,6 @@ export class MainScene extends Phaser.Scene {
       }
     }
 
-    // Add or update active layers
     for (const [cat, itemId] of Array.from(targetItems.entries())) {
       if (!layerMap.has(cat)) {
         const textureKey = this.textures.exists(`${itemId}_idle`) ? `${itemId}_idle` : baseSprite.texture.key;
@@ -317,7 +526,6 @@ export class MainScene extends Phaser.Scene {
         if (this.anims.exists(animKey)) {
           sprite.play(animKey, true);
         } else {
-          // Graceful fallback to static idle texture
           if (sprite.anims.isPlaying) sprite.anims.stop();
           sprite.setTexture(`${itemId}_idle`);
         }
@@ -328,6 +536,46 @@ export class MainScene extends Phaser.Scene {
     });
   }
 
+  private syncLampGlow(object: SyncedObject, objectId: string) {
+    const isLamp =
+      object.assetId.includes("lamp") ||
+      object.assetId.includes("light") ||
+      object.label.toLowerCase().includes("lamp");
+
+    const existing = this.lampGlows.get(objectId);
+
+    if (!isLamp || object.state !== "on") {
+      if (existing) {
+        existing.forEach((g) => g.destroy());
+        this.lampGlows.delete(objectId);
+      }
+      return;
+    }
+
+    if (!existing) {
+      const outerGlow = this.add.circle(object.x, object.y - 45, 42, 0xffea78, 0.35);
+      outerGlow.setBlendMode(Phaser.BlendModes.ADD);
+      outerGlow.setDepth(6);
+
+      const innerCore = this.add.circle(object.x, object.y - 45, 14, 0xffffff, 0.7);
+      innerCore.setBlendMode(Phaser.BlendModes.ADD);
+      innerCore.setDepth(7);
+
+      this.lampGlows.set(objectId, [outerGlow, innerCore]);
+    } else {
+      existing[0].setPosition(object.x, object.y - 45);
+      existing[1].setPosition(object.x, object.y - 45);
+    }
+  }
+
+  private removeLampGlow(objectId: string) {
+    const existing = this.lampGlows.get(objectId);
+    if (existing) {
+      existing.forEach((g) => g.destroy());
+      this.lampGlows.delete(objectId);
+    }
+  }
+
   private async connect() {
     const endpoint = process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "ws://localhost:2567";
     this.client = new Client(endpoint);
@@ -335,7 +583,12 @@ export class MainScene extends Phaser.Scene {
     try {
       const token = getToken();
       const username = getUsername() ?? `guest-${Math.floor(Math.random() * 1000)}`;
-      this.room = await this.client.joinOrCreate("house", { token, houseId: this.roomData.houseId, dbRoomId: this.roomData.roomId });
+      const room = await this.client.joinOrCreate("house", { token, houseId: this.roomData.houseId, dbRoomId: this.roomData.roomId });
+      if (this.isDestroyed) {
+        room.leave();
+        return;
+      }
+      this.room = room;
 
       // Wait for the initial schema snapshot
       await new Promise<void>((resolve) => {
@@ -346,10 +599,16 @@ export class MainScene extends Phaser.Scene {
         throw new Error("Game server returned no player state");
       }
 
+      // Synchronize initial room customization from server
+      if (this.room.state.floorTile) this.updateFloorTile(this.room.state.floorTile);
+      if (this.room.state.wallStyle) this.updateWallStyle(this.room.state.wallStyle);
+      if (this.room.state.roomName) this.currentRoomName = this.room.state.roomName;
+
       const userChar = (getGender() ?? getCharacter() ?? "FEMALE").toLowerCase();
       this.localCharacter = userChar === "male" ? "male" : "female";
 
-      this.localAvatar = this.add.sprite(400, 300, `${this.localCharacter}_idle`);
+      const initialPos = this.clampToFloor(400, 300);
+      this.localAvatar = this.add.sprite(initialPos.x, initialPos.y, `${this.localCharacter}_idle`);
       this.localAvatar.setScale(AVATAR_SCALE);
       this.localAvatar.setOrigin(0.5, 1);
       this.localAvatar.setDepth(10);
@@ -372,9 +631,42 @@ export class MainScene extends Phaser.Scene {
 
       this.syncFurnitureFromState();
       this.syncPlayersFromState();
+
+      if (this.room.state?.objects) {
+        this.room.state.objects.onAdd = (object: SyncedObject, objectId: string) => {
+          this.renderFurniture(object, objectId);
+        };
+        this.room.state.objects.onRemove = (_object: SyncedObject, objectId: string) => {
+          const existing = this.furniture.get(objectId);
+          existing?.display?.destroy();
+          existing?.rect?.destroy();
+          this.removeLampGlow(objectId);
+          this.furniture.delete(objectId);
+        };
+      }
+
       this.room.onStateChange(() => {
+        if (this.room?.state) {
+          if (this.room.state.floorTile && this.room.state.floorTile !== this.currentFloorTile) {
+            this.updateFloorTile(this.room.state.floorTile);
+          }
+          if (this.room.state.wallStyle && this.room.state.wallStyle !== this.currentWallStyle) {
+            this.updateWallStyle(this.room.state.wallStyle);
+          }
+          if (this.room.state.roomName && this.room.state.roomName !== this.currentRoomName) {
+            this.currentRoomName = this.room.state.roomName;
+          }
+        }
         this.syncFurnitureFromState();
         this.syncPlayersFromState();
+
+        this.callbacks.onRoomStateChange?.({
+          floorTile: this.currentFloorTile,
+          wallStyle: this.currentWallStyle,
+          roomName: this.currentRoomName,
+          isSitting: this.isLocalSitting,
+          sittingOnObjectId: this.sittingOnObjectId,
+        });
       });
 
     } catch (err) {
@@ -389,10 +681,70 @@ export class MainScene extends Phaser.Scene {
 
   private renderFurniture = (object: SyncedObject, objectId: string) => {
     const existing = this.furniture.get(objectId);
-    existing?.rect.destroy();
-    const color = Phaser.Display.Color.HexStringToColor(object.placeholderColor).color;
-    const rect = this.add.rectangle(object.x, object.y, object.width, object.height, color)
-      .setAngle(object.rotation)
+    const hasSourceUrl = !!object.sourceUrl;
+    const texKey = hasSourceUrl ? `furn_${object.assetId}` : "";
+    const canRenderSprite = hasSourceUrl && this.textures.exists(texKey);
+
+    if (existing) {
+      const isDisplaySprite = existing.display && (existing.display as any).type === "Sprite";
+      if (isDisplaySprite || !canRenderSprite) {
+        if (existing.display) {
+          (existing.display as any).x = object.x;
+          (existing.display as any).y = object.y;
+          (existing.display as any).angle = object.rotation || 0;
+          if (isDisplaySprite && canRenderSprite && (existing.display as Phaser.GameObjects.Sprite).texture.key !== texKey) {
+            (existing.display as Phaser.GameObjects.Sprite).setTexture(texKey);
+          }
+        }
+        existing.object = object;
+        this.syncLampGlow(object, objectId);
+        return;
+      }
+      existing.display?.destroy();
+      existing.rect?.destroy();
+      this.removeLampGlow(objectId);
+      this.furniture.delete(objectId);
+    }
+
+    if (hasSourceUrl) {
+      if (this.textures.exists(texKey)) {
+        const isCarpet = object.assetId.includes("carpet") || object.assetId.includes("rug");
+        const sprite = this.add.sprite(object.x, object.y, texKey)
+          .setAngle(object.rotation || 0)
+          .setInteractive({ useHandCursor: true });
+
+        if (isCarpet) {
+          sprite.setOrigin(0.5, 0.5);
+          sprite.setDepth(2);
+        } else {
+          sprite.setOrigin(0.5, 0.85);
+          sprite.setDepth(5);
+        }
+
+        sprite.on("pointerdown", (pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event?: Phaser.Types.Input.EventData) => {
+          event?.stopPropagation();
+          pointer.event?.stopPropagation();
+          this.callbacks.onFurnitureClick(object);
+        });
+
+        this.furniture.set(objectId, { object, display: sprite });
+        this.syncLampGlow(object, objectId);
+        return;
+      } else {
+        this.load.image(texKey, object.sourceUrl!);
+        this.load.once(`filecomplete-image-${texKey}`, () => {
+          if (!this.isDestroyed) {
+            this.renderFurniture(object, objectId);
+          }
+        });
+        this.load.start();
+      }
+    }
+
+    // Fallback colored rectangle
+    const color = Phaser.Display.Color.HexStringToColor(object.placeholderColor || "#ffffff").color;
+    const rect = this.add.rectangle(object.x, object.y, object.width || 24, object.height || 24, color)
+      .setAngle(object.rotation || 0)
       .setDepth(5)
       .setInteractive({ useHandCursor: true });
     rect.on("pointerdown", (pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event?: Phaser.Types.Input.EventData) => {
@@ -400,19 +752,22 @@ export class MainScene extends Phaser.Scene {
       pointer.event?.stopPropagation();
       this.callbacks.onFurnitureClick(object);
     });
-    this.furniture.set(objectId, { object, rect });
+    this.furniture.set(objectId, { object, display: rect, rect });
+    this.syncLampGlow(object, objectId);
   };
 
   private syncFurnitureFromState = () => {
-    if (!this.room) return;
+    if (!this.room || !this.room.state?.objects) return;
     const liveIds = new Set<string>();
     this.room.state.objects.forEach((object: SyncedObject, objectId: string) => {
       liveIds.add(objectId);
       this.renderFurniture(object, objectId);
     });
-    this.furniture.forEach(({ rect }, objectId) => {
+    this.furniture.forEach(({ display, rect }, objectId) => {
       if (liveIds.has(objectId)) return;
-      rect.destroy();
+      if (display) display.destroy();
+      else if (rect) rect.destroy();
+      this.removeLampGlow(objectId);
       this.furniture.delete(objectId);
     });
   };
@@ -427,6 +782,21 @@ export class MainScene extends Phaser.Scene {
 
       // Local player sync
       if (sessionId === this.room?.sessionId) {
+        const wasSitting = this.isLocalSitting;
+        this.isLocalSitting = player.state === "sit";
+        this.sittingOnObjectId = player.sittingOnObjectId || "";
+
+        if (this.isLocalSitting) {
+          this.localAvatar?.setDepth(6);
+          this.localAvatar?.setPosition(player.x, player.y);
+          if (player.direction) {
+            this.lastDirection = player.direction;
+            this.localAvatar?.setFlipX(player.direction === "left");
+          }
+        } else if (wasSitting) {
+          this.localAvatar?.setDepth(10);
+        }
+
         if (player.character) {
           const char = player.character.toLowerCase() === "male" ? "male" : "female";
           if (char !== this.localCharacter) {
@@ -451,14 +821,15 @@ export class MainScene extends Phaser.Scene {
       let avatar = this.remoteAvatars.get(sessionId);
       if (!avatar) {
         const charType: "female" | "male" = player.character?.toLowerCase() === "male" ? "male" : "female";
-        const sprite = this.add.sprite(player.x, player.y, `${charType}_idle`);
+        const clampedPos = this.clampToFloor(player.x, player.y);
+        const sprite = this.add.sprite(clampedPos.x, clampedPos.y, `${charType}_idle`);
         sprite.setScale(AVATAR_SCALE);
         sprite.setOrigin(0.5, 1);
-        sprite.setDepth(10);
+        sprite.setDepth(player.state === "sit" ? 6 : 10);
         sprite.play(`${charType}_idle`);
 
         const label = this.add
-          .text(player.x, player.y - 759 * AVATAR_SCALE - 6, player.username, { fontSize: "11px", color: "#fff" })
+          .text(clampedPos.x, clampedPos.y - 759 * AVATAR_SCALE - 6, player.username, { fontSize: "11px", color: "#fff" })
           .setOrigin(0.5);
         label.setDepth(20);
 
@@ -474,19 +845,28 @@ export class MainScene extends Phaser.Scene {
           sprite,
           outfitSprites,
           label,
-          targetX: player.x,
-          targetY: player.y,
+          targetX: clampedPos.x,
+          targetY: clampedPos.y,
           character: charType,
           equippedOutfit: remoteOutfit,
           direction: player.direction ?? "down",
           moving: !!player.moving,
+          state: player.state ?? "idle",
         };
         this.remoteAvatars.set(sessionId, avatar);
       } else {
-        avatar.targetX = player.x;
-        avatar.targetY = player.y;
+        const clampedPos = this.clampToFloor(player.x, player.y);
+        avatar.targetX = clampedPos.x;
+        avatar.targetY = clampedPos.y;
         if (player.direction) avatar.direction = player.direction;
         avatar.moving = !!player.moving;
+        avatar.state = player.state ?? "idle";
+
+        if (avatar.state === "sit") {
+          avatar.sprite.setDepth(6);
+        } else {
+          avatar.sprite.setDepth(10);
+        }
 
         if (player.character) {
           const newChar: "female" | "male" = player.character.toLowerCase() === "male" ? "male" : "female";
@@ -507,7 +887,7 @@ export class MainScene extends Phaser.Scene {
       }
     });
 
-    // Remove any departed players
+    // Remove departing players
     this.remoteAvatars.forEach((avatar, sessionId) => {
       if (liveSessionIds.has(sessionId)) return;
       avatar.outfitSprites.forEach((s) => s.destroy());
@@ -527,7 +907,7 @@ export class MainScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number) {
-    // Smoothly interpolate remote avatars toward their last known server position.
+    // Smoothly interpolate remote avatars
     this.remoteAvatars.forEach((avatar) => {
       avatar.sprite.x = Phaser.Math.Linear(avatar.sprite.x, avatar.targetX, 0.25);
       avatar.sprite.y = Phaser.Math.Linear(avatar.sprite.y, avatar.targetY, 0.25);
@@ -546,7 +926,11 @@ export class MainScene extends Phaser.Scene {
         }
       } else {
         avatar.sprite.setScale(AVATAR_SCALE);
-        avatar.sprite.setFlipX(false);
+        if (avatar.direction === "left") {
+          avatar.sprite.setFlipX(true);
+        } else {
+          avatar.sprite.setFlipX(false);
+        }
         avatar.sprite.play(`${charPrefix}_idle`, true);
       }
 
@@ -578,13 +962,21 @@ export class MainScene extends Phaser.Scene {
     this.lastDirection = direction;
     const moving = dx !== 0 || dy !== 0;
 
+    // If moving while sitting, user automatically stands up
+    if (moving && this.isLocalSitting) {
+      this.isLocalSitting = false;
+      this.sittingOnObjectId = "";
+      this.localAvatar.setDepth(10);
+    }
+
     if (moving) {
       const len = Math.hypot(dx, dy) || 1;
       const step = (SPEED * delta) / 1000;
-      this.localAvatar.x += (dx / len) * step;
-      this.localAvatar.y += (dy / len) * step;
-      this.localAvatar.x = Phaser.Math.Clamp(this.localAvatar.x, 20, 780);
-      this.localAvatar.y = Phaser.Math.Clamp(this.localAvatar.y, 40, 584);
+      const nextX = this.localAvatar.x + (dx / len) * step;
+      const nextY = this.localAvatar.y + (dy / len) * step;
+      const clamped = this.clampToFloor(nextX, nextY);
+      this.localAvatar.x = clamped.x;
+      this.localAvatar.y = clamped.y;
 
       this.localAvatar.setScale(AVATAR_SCALE);
       const charPrefix = this.localCharacter;
@@ -598,7 +990,15 @@ export class MainScene extends Phaser.Scene {
     } else {
       this.localAvatar.setScale(AVATAR_SCALE);
       const charPrefix = this.localCharacter;
-      this.localAvatar.setFlipX(false);
+      if (this.isLocalSitting) {
+        if (direction === "left") {
+          this.localAvatar.setFlipX(true);
+        } else {
+          this.localAvatar.setFlipX(false);
+        }
+      } else {
+        this.localAvatar.setFlipX(false);
+      }
       this.localAvatar.play(`${charPrefix}_idle`, true);
     }
 
@@ -615,7 +1015,14 @@ export class MainScene extends Phaser.Scene {
       this.localLabel.y = this.localAvatar.y - (759 * AVATAR_SCALE) - 6;
     }
 
-    // Only send when something actually changed, to keep bandwidth sane.
+    // When sitting and not pressing movement keys, keep sitting position and don't send move
+    if (this.isLocalSitting && !moving) {
+      this.lastSent.x = this.localAvatar.x;
+      this.lastSent.y = this.localAvatar.y;
+      this.lastSent.moving = false;
+      return;
+    }
+
     const changed =
       moving ||
       this.lastSent.moving !== moving ||
@@ -630,6 +1037,22 @@ export class MainScene extends Phaser.Scene {
         moving,
       });
       this.lastSent = { x: this.localAvatar.x, y: this.localAvatar.y, moving };
+    }
+  }
+
+  public leaveRoom() {
+    this.isDestroyed = true;
+    if (typeof window !== "undefined") {
+      window.removeEventListener("beforeunload", this.beforeUnloadHandler);
+    }
+    if (this.room) {
+      try {
+        console.log(`[MainScene] Leaving house room ${this.room.roomId} (${this.room.sessionId})...`);
+        this.room.leave();
+      } catch (err) {
+        console.warn("[MainScene] Error leaving room:", err);
+      }
+      this.room = undefined;
     }
   }
 }

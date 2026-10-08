@@ -6,6 +6,7 @@ export interface FurnitureCallbacks {
   onEmptyFloorClick: (x: number, y: number) => void;
   onFurnitureClick: (object: SyncedObject) => void;
   onLocalAvatarClick?: () => void;
+  onRoomStateChange?: (state: { floorTile: string; wallStyle: string; roomName: string; isSitting: boolean; sittingOnObjectId: string }) => void;
 }
 
 export function createGame(

@@ -17,6 +17,12 @@ export default function WorldPhaserGame() {
     return () => {
       destroyed = true;
       if (gameRef.current) {
+        try {
+          const scene = gameRef.current.scene.getScene("WorldScene") as any;
+          scene?.leaveRoom?.();
+        } catch (e) {
+          console.warn("[WorldPhaserGame] Error shutting down world scene room:", e);
+        }
         gameRef.current.destroy(true);
         gameRef.current = null;
       }
