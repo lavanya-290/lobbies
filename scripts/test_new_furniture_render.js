@@ -59,22 +59,26 @@ async function run() {
     }, { timeout: 15000 });
     await new Promise((r) => setTimeout(r, 1000));
 
-    // Place sofa-se, chair-yellow-pretty-se, and carpet-tiger-se via Colyseus
+    // Place new assets via Colyseus
     await page.evaluate(() => {
       const s = window.__PHASER_GAME__?.scene?.getScene("MainScene");
-      s.placeObject("carpet-tiger-se", 400, 320);
+      s.placeObject("carpet-tiger-sw", 400, 320);
       s.placeObject("sofa-se", 320, 260);
       s.placeObject("chair-yellow-pretty-se", 480, 260);
+      s.placeObject("green-cupboard-quirky-se", 240, 220);
+      s.placeObject("plant-flowering-delicate", 560, 220);
+      s.placeObject("plant-desert-cacti", 340, 370);
+      s.placeObject("plant-monstera-longleaf", 460, 370);
     });
 
     console.log("Waiting for objects to sync to room state...");
     await page.waitForFunction(() => {
       const s = window.__PHASER_GAME__?.scene?.getScene("MainScene");
-      return (s?.room?.state?.objects?.size || 0) >= 3;
+      return (s?.room?.state?.objects?.size || 0) >= 6;
     }, { timeout: 15000 });
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 1500));
 
-    const shotPath = path.join(ARTIFACT_DIR, "room_new_furniture_placed.png");
+    const shotPath = path.join(ARTIFACT_DIR, "room_all_new_assets_placed.png");
     await page.screenshot({ path: shotPath });
     console.log("Saved placed furniture screenshot:", shotPath);
 
