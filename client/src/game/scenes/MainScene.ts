@@ -4,7 +4,7 @@ import { getToken, getUsername, getCharacter, getGender } from "@/lib/auth";
 import { SyncedObject } from "@/lib/objects";
 import { OUTFIT_ITEMS } from "@/lib/outfits";
 import type { FurnitureCallbacks } from "../main";
-import { FLOOR_TILES, getHouseFloorTile, resolveFloorTileKey, DEFAULT_FLOOR_KEY, LEGACY_FLOOR_MAP } from "@/lib/floors";
+import { FLOOR_TILES, getHouseFloorTile, resolveFloorTileKey, DEFAULT_FLOOR_KEY } from "@/lib/floors";
 import { WALL_STYLES } from "@/lib/walls";
 
 const SPEED = 180;
@@ -135,16 +135,9 @@ export class MainScene extends Phaser.Scene {
       }
     });
 
-    // Unique 3D thick floor tile textures
+    // Indoor house floor tile textures from /assets/tiles/floors
     FLOOR_TILES.forEach((f) => {
       this.load.image(f.key, f.path);
-    });
-    // Register legacy keys to point to thick tile textures
-    Object.entries(LEGACY_FLOOR_MAP).forEach(([oldKey, newKey]) => {
-      const def = FLOOR_TILES.find((f) => f.key === newKey);
-      if (def && !this.textures.exists(oldKey)) {
-        this.load.image(oldKey, def.path);
-      }
     });
 
     // Wall tile singles
@@ -301,9 +294,7 @@ export class MainScene extends Phaser.Scene {
         const isoX = originX + (c - r) * 64;
         const isoY = originY + (c + r) * 32;
         const tile = this.add.image(isoX, isoY, this.currentFloorTile);
-        // Thick tile origin (0.5, 32 / 72) places the top diamond surface right at isoY,
-        // leaving the 8px slab skirt extending downward into 3D isometric space
-        tile.setOrigin(0.5, 32 / 72);
+        tile.setOrigin(0.5, 0.5);
         tile.setDepth(1 + (r + c) * 0.01);
         tile.setInteractive({ useHandCursor: true });
         tile.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
@@ -348,7 +339,7 @@ export class MainScene extends Phaser.Scene {
     this.currentFloorTile = resolvedKey;
     this.floorTiles.forEach((tile) => {
       tile.setTexture(resolvedKey);
-      tile.setOrigin(0.5, 32 / 72);
+      tile.setOrigin(0.5, 0.5);
     });
   }
 

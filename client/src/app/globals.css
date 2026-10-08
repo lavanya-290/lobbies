@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Core palette */
+  --bg-deep: #0a0918;
+  --bg-deep-alt: #0d0c16;
+  --chrome-surface: rgba(10, 16, 22, 0.88);
+  --chrome-surface-solid: #0a1016;
+  --chrome-panel: rgba(10, 16, 22, 0.94);
+  --cyan-bright: #4fd8e0;
+  --cyan-dark: #1f7a82;
+  --cyan-gradient-start: #1fb9c4;
+  --cyan-gradient-end: #0f7f87;
+  --cyan-text: #dffcff;
+  --cyan-muted: #8fe8ee;
+  
+  /* Fonts */
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-deep);
+  color: var(--cyan-text);
+  font-family: var(--font-body);
+  cursor: url('/assets/cursor/pointer.png') 0 0, auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure all interactive elements inherit the pixel cursor */
+a, button, input, select, textarea, [role="button"], label {
+  cursor: url('/assets/cursor/pointer.png') 0 0, pointer;
+}
+
+/* Scrollbars matching UI Chrome */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep-alt);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--cyan-dark);
+  border: 1px solid var(--cyan-bright);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cyan-bright);
+}
+
+/* UI Chrome Construction Utility Classes */
+
+.chrome-panel {
+  background: var(--chrome-surface);
+  backdrop-filter: blur(8px);
+  border: 2px solid var(--cyan-bright);
+  border-radius: 2px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  color: var(--cyan-text);
+}
+
+.pixel-header {
+  font-family: var(--font-pixel);
+  letter-spacing: 0.5px;
+  color: var(--cyan-text);
+}
+
+/* Primary / CTA Buttons */
+.btn-primary {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  background: linear-gradient(180deg, var(--cyan-gradient-start) 0%, var(--cyan-gradient-end) 100%);
+  color: #061e22 !important;
+  border: 2px solid var(--cyan-bright);
+  border-radius: 2px;
+  padding: 10px 16px;
+  box-shadow: 2px 2px 0px var(--cyan-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  line-height: 1.2;
+  transition: transform 0.05s ease, box-shadow 0.05s ease, filter 0.15s ease;
+  user-select: none;
+}
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px var(--cyan-dark);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+}
+
+/* Secondary Buttons */
+.btn-secondary {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  background: var(--chrome-surface);
+  color: var(--cyan-text) !important;
+  border: 2px solid var(--cyan-bright);
+  border-radius: 2px;
+  padding: 8px 14px;
+  box-shadow: 2px 2px 0px var(--cyan-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  line-height: 1.2;
+  transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.15s ease;
+  user-select: none;
+}
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(79, 216, 224, 0.14);
+}
+.btn-secondary:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px var(--cyan-dark);
+}
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Input Fields */
+.input-chrome {
+  background: rgba(10, 16, 22, 0.9);
+  border: 2px solid var(--cyan-bright);
+  border-radius: 2px;
+  color: var(--cyan-text);
+  padding: 10px 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.5);
+}
+.input-chrome:focus {
+  border-color: #8ef9ff;
+  box-shadow: 0 0 8px rgba(79, 216, 224, 0.5);
+}

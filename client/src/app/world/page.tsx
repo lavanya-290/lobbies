@@ -12,45 +12,41 @@ export default function WorldPreviewPage() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: "24px",
+        padding: "68px 20px 24px",
         minHeight: "100vh",
-        backgroundColor: "#0f172a",
-        color: "#f8fafc",
-        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        backgroundColor: "#0a0918",
+        color: "#dffcff",
       }}
     >
       <header
+        className="chrome-panel"
         style={{
           width: "100%",
-          maxWidth: "960px",
+          maxWidth: "800px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "16px",
+          flexWrap: "wrap",
+          gap: 12,
+          marginBottom: "14px",
+          padding: "12px 18px",
+          borderBottom: "2px solid #4fd8e0",
         }}
       >
         <div>
-          <h1 style={{ fontSize: "24px", fontWeight: "700", margin: "0 0 4px 0" }}>
-            Town Ground Map & Overworld Preview
+          <h1 className="pixel-header" style={{ fontSize: "12px", margin: "0 0 6px 0", lineHeight: 1.4 }}>
+            🌍 TOWN OVERWORLD
           </h1>
-          <p style={{ margin: 0, fontSize: "14px", color: "#94a3b8" }}>
-            Exported TileWeaver ground map with depth-sorted trees, bushes, and ambient fluttering butterflies.
+          <p style={{ margin: 0, fontSize: "12px", color: "#8fe8ee" }}>
+            Depth-sorted trees, berry bushes, and ambient fluttering butterflies.
           </p>
         </div>
         <Link
           href="/houses"
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#334155",
-            color: "#f8fafc",
-            borderRadius: "6px",
-            textDecoration: "none",
-            fontSize: "14px",
-            fontWeight: "500",
-            border: "1px solid #475569",
-          }}
+          className="btn-secondary"
+          style={{ fontSize: "10px", padding: "6px 14px" }}
         >
-          ← Back to Houses
+          ← BACK TO HOUSES
         </Link>
       </header>
 

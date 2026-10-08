@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
+import "./globals.css";
+import BrandLogoBadge from "@/components/BrandLogoBadge";
 
 export const metadata: Metadata = {
-  title: "Habbo Clone — Phase 0",
-  description: "Prototype house/world loop",
+  title: "Lobbies — Multiplayer Retro Chibi Hotel",
+  description: "Explore rooms, customize houses, and hang out with friends in a vibrant retro world.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body style={{ margin: 0, background: "#111", color: "#eee", fontFamily: "sans-serif" }}>
+      <body>
+        <BrandLogoBadge />
         {children}
       </body>
     </html>

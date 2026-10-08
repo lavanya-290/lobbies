@@ -240,7 +240,17 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
   const isSittingOnSelected = selectedObject && sittingOnObjectId === selectedObject.id;
 
   return (
-    <div style={{ position: "relative", width: 800, height: 600, overflow: "hidden", borderRadius: 12, boxShadow: "0 16px 40px rgba(0,0,0,0.5)" }}>
+    <div
+      style={{
+        position: "relative",
+        width: 800,
+        height: 600,
+        overflow: "hidden",
+        borderRadius: 2,
+        border: "2px solid #4fd8e0",
+        boxShadow: "0 16px 40px rgba(0,0,0,0.8), 2px 2px 0px #1f7a82",
+      }}
+    >
       <div ref={containerRef} id="phaser-container" />
 
       {/* Top Header Bar Overlay */}
@@ -250,11 +260,12 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
           top: 0,
           left: 0,
           right: 0,
-          padding: "10px 16px",
+          padding: "10px 14px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          background: "linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0) 100%)",
+          background: "rgba(10, 16, 22, 0.9)",
+          borderBottom: "2px solid #4fd8e0",
           zIndex: 10,
           pointerEvents: "none",
         }}
@@ -263,37 +274,43 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
         <div style={{ display: "flex", alignItems: "center", gap: 8, pointerEvents: "auto" }}>
           <div
             style={{
-              backgroundColor: "rgba(30, 41, 59, 0.85)",
-              backdropFilter: "blur(8px)",
-              border: "1px solid rgba(71, 85, 105, 0.6)",
-              borderRadius: 8,
-              padding: "6px 12px",
+              backgroundColor: "rgba(10, 16, 22, 0.95)",
+              border: "2px solid #4fd8e0",
+              borderRadius: 2,
+              padding: "5px 10px",
               display: "flex",
               alignItems: "center",
               gap: 8,
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+              boxShadow: "2px 2px 0px #1f7a82",
             }}
           >
-            <span style={{ fontSize: 16 }}>🏡</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc" }}>{roomName}</span>
+            <span style={{ fontSize: 14 }}>🏡</span>
+            <span
+              style={{
+                fontFamily: "var(--font-pixel)",
+                fontSize: 10,
+                color: "#dffcff",
+              }}
+            >
+              {roomName.toUpperCase()}
+            </span>
           </div>
 
           <div
             style={{
-              backgroundColor: "rgba(30, 41, 59, 0.7)",
-              backdropFilter: "blur(6px)",
-              border: "1px solid rgba(71, 85, 105, 0.4)",
-              borderRadius: 6,
+              backgroundColor: "rgba(10, 16, 22, 0.9)",
+              border: "2px solid #1f7a82",
+              borderRadius: 2,
               padding: "4px 8px",
-              fontSize: 10,
-              fontWeight: 600,
-              color: "#94a3b8",
+              fontSize: 9,
+              fontFamily: "var(--font-pixel)",
+              color: "#4fd8e0",
               textTransform: "uppercase",
               display: "flex",
               gap: 6,
             }}
           >
-            <span>Wall: {wallStyle}</span>
+            <span>WALL: {wallStyle.toUpperCase()}</span>
           </div>
         </div>
 
@@ -302,70 +319,30 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
           {isSitting && (
             <button
               onClick={handleStandUp}
-              style={{
-                backgroundColor: "#f97316",
-                color: "#fff",
-                border: "none",
-                borderRadius: 6,
-                padding: "6px 12px",
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                boxShadow: "0 2px 8px rgba(249, 115, 22, 0.4)",
-              }}
+              className="btn-primary"
+              style={{ fontSize: 9, padding: "6px 10px" }}
             >
               <span>🪑</span>
-              <span>Stand Up</span>
+              <span>STAND UP</span>
             </button>
           )}
 
           <button
             onClick={() => setCustomizationOpen(true)}
-            style={{
-              backgroundColor: "rgba(30, 41, 59, 0.85)",
-              color: "#e2e8f0",
-              border: "1px solid rgba(71, 85, 105, 0.6)",
-              borderRadius: 6,
-              padding: "6px 12px",
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: "pointer",
-              backdropFilter: "blur(8px)",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
-              transition: "all 0.15s ease",
-            }}
+            className="btn-secondary"
+            style={{ fontSize: 9, padding: "6px 10px" }}
           >
             <span>🎨</span>
-            <span>Customize Room</span>
+            <span>CUSTOMIZE</span>
           </button>
 
           <button
             onClick={() => setWardrobeOpen((prev) => !prev)}
-            style={{
-              backgroundColor: wardrobeOpen ? "#fbbf24" : "rgba(30, 41, 59, 0.85)",
-              color: wardrobeOpen ? "#18181b" : "#e2e8f0",
-              border: "1px solid rgba(71, 85, 105, 0.6)",
-              borderRadius: 6,
-              padding: "6px 12px",
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: "pointer",
-              backdropFilter: "blur(8px)",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
-              transition: "all 0.15s ease",
-            }}
+            className={wardrobeOpen ? "btn-primary" : "btn-secondary"}
+            style={{ fontSize: 9, padding: "6px 10px" }}
           >
             <span>👔</span>
-            <span>{wardrobeOpen ? "Close Wardrobe" : "Wardrobe"}</span>
+            <span>{wardrobeOpen ? "CLOSE" : "WARDROBE"}</span>
           </button>
         </div>
       </div>
@@ -373,40 +350,29 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
       {/* Furniture Move Banner */}
       {movingObject && (
         <div
+          className="chrome-panel"
           style={{
             position: "absolute",
             top: 54,
             left: "50%",
             transform: "translateX(-50%)",
-            backgroundColor: "#1e1e30",
-            border: "2px solid #6366f1",
-            borderRadius: 8,
+            backgroundColor: "rgba(10, 16, 22, 0.96)",
             padding: "8px 16px",
             display: "flex",
             alignItems: "center",
             gap: 12,
-            boxShadow: "0 8px 24px rgba(99, 102, 241, 0.5)",
             zIndex: 15,
-            color: "#f8fafc",
+            color: "#dffcff",
             fontSize: 12,
-            fontWeight: 600,
           }}
         >
-          <span>📍 Moving &quot;{movingObject.label}&quot; — Click any tile on the floor to place</span>
+          <span>📍 Moving &quot;{movingObject.label}&quot; — Click any tile to place</span>
           <button
             onClick={() => setMovingObject(null)}
-            style={{
-              backgroundColor: "#ef4444",
-              border: "none",
-              color: "#fff",
-              padding: "4px 8px",
-              borderRadius: 4,
-              fontSize: 11,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
+            className="btn-secondary"
+            style={{ fontSize: 9, padding: "4px 8px", color: "#fca5a5" }}
           >
-            Cancel
+            CANCEL
           </button>
         </div>
       )}
@@ -438,34 +404,34 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
           onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
+          className="chrome-panel"
           style={{
             position: "absolute",
             left: Math.max(12, Math.min(spot.x - 90, 800 - 240)),
             top: Math.max(12, Math.min(spot.y - 120, 600 - 280)),
-            width: 230,
-            maxHeight: 260,
+            width: 240,
+            maxHeight: 270,
             padding: 12,
-            backgroundColor: "#131320",
-            color: "#f8fafc",
-            border: "1px solid #383852",
-            borderRadius: 10,
-            boxShadow: "0 12px 30px rgba(0, 0, 0, 0.7)",
+            backgroundColor: "rgba(10, 16, 22, 0.96)",
             zIndex: 15,
             display: "flex",
             flexDirection: "column",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#cbd5e1" }}>Place Furniture</span>
+            <span style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "#dffcff" }}>
+              PLACE FURNITURE
+            </span>
             <button
               onClick={() => setSpot(null)}
-              style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: 14 }}
+              className="btn-secondary"
+              style={{ padding: "2px 6px", fontSize: 10, lineHeight: 1 }}
             >
               ✕
             </button>
           </div>
 
-          <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 5 }}>
             {assets.map((asset) => (
               <button
                 key={asset.id}
@@ -475,14 +441,22 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
                   alignItems: "center",
                   gap: 8,
                   padding: "6px 8px",
-                  backgroundColor: "#1b1b2d",
-                  border: "1px solid #2e2e46",
-                  borderRadius: 6,
-                  color: "#e2e8f0",
+                  backgroundColor: "rgba(10, 16, 22, 0.8)",
+                  border: "1px solid #1f7a82",
+                  borderRadius: 2,
+                  color: "#dffcff",
                   fontSize: 11,
                   textAlign: "left",
                   cursor: "pointer",
-                  transition: "background 0.1s ease",
+                  transition: "border-color 0.1s ease, background 0.1s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#4fd8e0";
+                  e.currentTarget.style.backgroundColor = "rgba(79, 216, 224, 0.12)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "#1f7a82";
+                  e.currentTarget.style.backgroundColor = "rgba(10, 16, 22, 0.8)";
                 }}
               >
                 {asset.sourceUrl ? (
@@ -516,17 +490,14 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
           onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
+          className="chrome-panel"
           style={{
             position: "absolute",
-            left: Math.max(12, Math.min(selectedObject.x - 100, 800 - 220)),
-            top: Math.max(12, Math.min(selectedObject.y - 180, 600 - 260)),
-            width: 210,
-            padding: 14,
-            backgroundColor: "#131320",
-            color: "#f8fafc",
-            border: "1px solid #414160",
-            borderRadius: 10,
-            boxShadow: "0 12px 32px rgba(0, 0, 0, 0.75)",
+            left: Math.max(12, Math.min(selectedObject.x - 100, 800 - 230)),
+            top: Math.max(12, Math.min(selectedObject.y - 180, 600 - 270)),
+            width: 220,
+            padding: 12,
+            backgroundColor: "rgba(10, 16, 22, 0.96)",
             zIndex: 15,
             display: "flex",
             flexDirection: "column",
@@ -534,18 +505,19 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
           }}
         >
           {/* Header Info */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid #27273c", paddingBottom: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid #1f7a82", paddingBottom: 8 }}>
             {selectedObject.sourceUrl ? (
               <img
                 src={selectedObject.sourceUrl}
                 alt=""
                 style={{
-                  width: 34,
-                  height: 34,
+                  width: 32,
+                  height: 32,
                   objectFit: "contain",
                   imageRendering: "pixelated",
-                  backgroundColor: "#1a1a2b",
-                  borderRadius: 6,
+                  backgroundColor: "#0d0c16",
+                  border: "1px solid #1f7a82",
+                  borderRadius: 2,
                   padding: 2,
                 }}
               />
@@ -555,16 +527,16 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
                   width: 24,
                   height: 24,
                   backgroundColor: selectedObject.placeholderColor || "#fff",
-                  borderRadius: 4,
+                  borderRadius: 2,
                 }}
               />
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: "#f8fafc",
+                  fontFamily: "var(--font-pixel)",
+                  fontSize: 9,
+                  color: "#dffcff",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -572,7 +544,7 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
               >
                 {selectedObject.label}
               </div>
-              <div style={{ fontSize: 10, color: "#94a3b8" }}>
+              <div style={{ fontSize: 10, color: "#8fe8ee", marginTop: 2 }}>
                 {selectedObject.assetId.includes("-se")
                   ? "South-East (SE)"
                   : selectedObject.assetId.includes("-sw")
@@ -583,35 +555,24 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
             </div>
             <button
               onClick={() => setSelectedObject(null)}
-              style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 14 }}
+              className="btn-secondary"
+              style={{ padding: "2px 6px", fontSize: 9, lineHeight: 1 }}
             >
               ✕
             </button>
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 2 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 2 }}>
             {/* Sit / Stand Up button */}
             {isSeating && (
               <button
                 onClick={isSittingOnSelected ? handleStandUp : handleSit}
-                style={{
-                  padding: "7px 10px",
-                  backgroundColor: isSittingOnSelected ? "#f97316" : "#4f46e5",
-                  border: "none",
-                  borderRadius: 6,
-                  color: "#fff",
-                  fontSize: 11,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
-                }}
+                className="btn-primary"
+                style={{ fontSize: 9, padding: "6px 8px" }}
               >
                 <span>🪑</span>
-                <span>{isSittingOnSelected ? "Stand Up" : "Sit Here"}</span>
+                <span>{isSittingOnSelected ? "STAND UP" : "SIT HERE"}</span>
               </button>
             )}
 
@@ -619,90 +580,42 @@ export default function PhaserGame({ houseId, roomId }: { houseId: string; roomI
             {isLamp && (
               <button
                 onClick={handleToggleState}
-                style={{
-                  padding: "7px 10px",
-                  backgroundColor: selectedObject.state === "on" ? "#d97706" : "#222235",
-                  border: "1px solid #4a4a66",
-                  borderRadius: 6,
-                  color: selectedObject.state === "on" ? "#fff" : "#cbd5e1",
-                  fontSize: 11,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
-                }}
+                className="btn-secondary"
+                style={{ fontSize: 9, padding: "6px 8px" }}
               >
                 <span>💡</span>
-                <span>{selectedObject.state === "on" ? "Turn Off Lamp" : "Turn On Lamp"}</span>
+                <span>{selectedObject.state === "on" ? "TURN OFF LAMP" : "TURN ON LAMP"}</span>
               </button>
             )}
 
             {/* Rotate button */}
             <button
               onClick={handleRotate}
-              style={{
-                padding: "6px 10px",
-                backgroundColor: "#1b1b2c",
-                border: "1px solid #353550",
-                borderRadius: 6,
-                color: "#cbd5e1",
-                fontSize: 11,
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 6,
-              }}
+              className="btn-secondary"
+              style={{ fontSize: 9, padding: "6px 8px" }}
             >
               <span>🔄</span>
-              <span>Rotate</span>
+              <span>ROTATE</span>
             </button>
 
             {/* Move button */}
             <button
               onClick={handleStartMove}
-              style={{
-                padding: "6px 10px",
-                backgroundColor: "#1b1b2c",
-                border: "1px solid #353550",
-                borderRadius: 6,
-                color: "#cbd5e1",
-                fontSize: 11,
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 6,
-              }}
+              className="btn-secondary"
+              style={{ fontSize: 9, padding: "6px 8px" }}
             >
               <span>↔️</span>
-              <span>Move</span>
+              <span>MOVE</span>
             </button>
 
             {/* Remove button */}
             <button
               onClick={removeSelected}
-              style={{
-                padding: "6px 10px",
-                backgroundColor: "rgba(239, 68, 68, 0.15)",
-                border: "1px solid rgba(239, 68, 68, 0.3)",
-                borderRadius: 6,
-                color: "#fca5a5",
-                fontSize: 11,
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 6,
-              }}
+              className="btn-secondary"
+              style={{ fontSize: 9, padding: "6px 8px", color: "#fca5a5" }}
             >
               <span>🗑️</span>
-              <span>Remove</span>
+              <span>REMOVE</span>
             </button>
           </div>
         </div>

@@ -29,23 +29,18 @@ export default function WardrobeOverlay({
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
+      className="chrome-panel"
       style={{
         position: "absolute",
         top: 20,
         right: 20,
-        width: 290,
+        width: 300,
         maxHeight: 560,
-        background: "rgba(23, 23, 34, 0.95)",
-        backdropFilter: "blur(8px)",
-        color: "#f4f4f5",
-        border: "1px solid #3f3f46",
-        borderRadius: 8,
-        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
+        backgroundColor: "rgba(10, 16, 22, 0.96)",
         zIndex: 20,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        fontFamily: "inherit",
       }}
     >
       {/* Header */}
@@ -54,28 +49,25 @@ export default function WardrobeOverlay({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "12px 16px",
-          borderBottom: "1px solid #3f3f46",
-          background: "rgba(39, 39, 42, 0.5)",
+          padding: "12px 14px",
+          borderBottom: "2px solid #4fd8e0",
+          background: "rgba(10, 16, 22, 0.98)",
         }}
       >
         <div>
-          <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#fbbf24" }}>
-            Wardrobe & Outfits
+          <h2 className="pixel-header" style={{ fontSize: 11, margin: 0, color: "#dffcff" }}>
+            WARDROBE
           </h2>
-          <span style={{ fontSize: 11, color: "#a1a1aa" }}>
+          <span style={{ fontSize: 10, color: "#8fe8ee" }}>
             Base: {character === "MALE" ? "Male Chibi" : "Female Chibi"}
           </span>
         </div>
         <button
           onClick={onClose}
+          className="btn-secondary"
           style={{
-            background: "none",
-            border: "none",
-            color: "#a1a1aa",
-            fontSize: 18,
-            cursor: "pointer",
-            padding: "2px 6px",
+            padding: "3px 8px",
+            fontSize: 11,
             lineHeight: 1,
           }}
           title="Close Wardrobe"
@@ -103,19 +95,19 @@ export default function WardrobeOverlay({
             <div key={cat}>
               <div
                 style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  textTransform: "uppercase",
+                  fontFamily: "var(--font-pixel)",
+                  fontSize: 9,
                   letterSpacing: "0.05em",
-                  color: "#d4d4d8",
+                  color: "#4fd8e0",
                   marginBottom: 6,
-                  paddingBottom: 2,
-                  borderBottom: "1px solid rgba(63, 63, 70, 0.4)",
+                  paddingBottom: 4,
+                  borderBottom: "1px solid #1f7a82",
+                  textTransform: "uppercase",
                 }}
               >
                 {CATEGORY_LABELS[cat]}
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 {itemsInCat.map((item) => {
                   const isEquipped = equippedOutfit[item.category] === item.id;
                   const isDressEquipped = !!equippedOutfit.dress;
@@ -130,15 +122,16 @@ export default function WardrobeOverlay({
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "100%",
-                        padding: "6px 10px",
-                        borderRadius: 6,
-                        border: isEquipped ? "1px solid #fbbf24" : "1px solid #27272a",
-                        background: isEquipped ? "rgba(251, 191, 36, 0.15)" : "#18181b",
-                        color: isEquipped ? "#fbbf24" : "#e4e4e7",
+                        padding: "7px 10px",
+                        borderRadius: 2,
+                        border: isEquipped ? "2px solid #4fd8e0" : "1px solid #1f7a82",
+                        background: isEquipped ? "rgba(31, 185, 196, 0.18)" : "rgba(10, 16, 22, 0.8)",
+                        color: isEquipped ? "#dffcff" : "#8fe8ee",
                         cursor: "pointer",
                         fontSize: 12,
                         textAlign: "left",
-                        transition: "all 0.15s ease",
+                        boxShadow: isEquipped ? "2px 2px 0px #1f7a82" : "none",
+                        transition: "all 0.1s ease",
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -147,24 +140,36 @@ export default function WardrobeOverlay({
                           <span
                             style={{
                               fontSize: 9,
-                              background: "#3f3f46",
-                              color: "#d4d4d8",
+                              background: "rgba(10, 16, 22, 0.9)",
+                              border: "1px solid #1f7a82",
+                              color: "#8fe8ee",
                               padding: "1px 4px",
-                              borderRadius: 3,
+                              borderRadius: 2,
                             }}
-                            title="Static idle overlay (walk animation coming soon)"
+                            title="Static idle overlay"
                           >
                             Static
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: 11, fontWeight: 600 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700 }}>
                         {isEquipped ? (
-                          <span style={{ color: "#fbbf24" }}>✓ Equipped</span>
+                          <span
+                            style={{
+                              fontFamily: "var(--font-pixel)",
+                              fontSize: 8,
+                              color: "#061e22",
+                              background: "#4fd8e0",
+                              padding: "2px 6px",
+                              borderRadius: 2,
+                            }}
+                          >
+                            EQUIPPED
+                          </span>
                         ) : isHiddenByDress ? (
-                          <span style={{ color: "#71717a", fontSize: 10 }}>Overridden</span>
+                          <span style={{ color: "#1f7a82", fontSize: 10 }}>Overridden</span>
                         ) : (
-                          <span style={{ color: "#71717a" }}>Equip</span>
+                          <span style={{ color: "#4fd8e0" }}>Equip</span>
                         )}
                       </div>
                     </button>

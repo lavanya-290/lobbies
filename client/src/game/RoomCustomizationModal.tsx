@@ -25,11 +25,13 @@ export default function RoomCustomizationModal({
   const [roomName, setRoomName] = useState(currentRoomName || "Living Room");
   const [selectedFloorCategory, setSelectedFloorCategory] = useState<string>("all");
 
-  const categories = ["all", "wood", "tile", "stone", "brick", "nature"];
+  // House indoor floor categories exclusively (no nature, water or grass)
+  const categories = ["all", "wood", "tile", "pattern", "stone", "brick", "metal"];
 
-  const filteredFloors = selectedFloorCategory === "all"
-    ? FLOOR_TILES
-    : FLOOR_TILES.filter((f) => f.category === selectedFloorCategory);
+  const filteredFloors =
+    selectedFloorCategory === "all"
+      ? FLOOR_TILES
+      : FLOOR_TILES.filter((f) => f.category === selectedFloorCategory);
 
   function handleSelectFloor(key: string) {
     setSelectedFloor(key);
@@ -39,11 +41,6 @@ export default function RoomCustomizationModal({
   function handleSelectWall(key: string) {
     setSelectedWall(key);
     onApply({ floorTile: selectedFloor, wallStyle: key, roomName });
-  }
-
-  function handleSaveDetails(e: React.FormEvent) {
-    e.preventDefault();
-    onApply({ floorTile: selectedFloor, wallStyle: selectedWall, roomName });
   }
 
   const namePresets = [
@@ -60,7 +57,7 @@ export default function RoomCustomizationModal({
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        backgroundColor: "rgba(10, 9, 24, 0.78)",
         backdropFilter: "blur(6px)",
         display: "flex",
         alignItems: "center",
@@ -70,17 +67,14 @@ export default function RoomCustomizationModal({
       onClick={onClose}
     >
       <div
+        className="chrome-panel"
         style={{
-          width: 580,
-          maxHeight: "85vh",
-          backgroundColor: "#13131f",
-          border: "1px solid #3b3b54",
-          borderRadius: 12,
-          boxShadow: "0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+          width: 600,
+          maxHeight: "88vh",
+          backgroundColor: "rgba(10, 16, 22, 0.96)",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          color: "#e2e8f0",
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -88,35 +82,33 @@ export default function RoomCustomizationModal({
         <div
           style={{
             padding: "16px 20px",
-            borderBottom: "1px solid #28283c",
+            borderBottom: "2px solid #4fd8e0",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "linear-gradient(180deg, #1e1e2f 0%, #13131f 100%)",
+            background: "rgba(10, 16, 22, 0.98)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 20 }}>🏡</span>
             <div>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#f8fafc" }}>
-                House & Room Customization
+              <h3 className="pixel-header" style={{ margin: 0, fontSize: 12, lineHeight: 1.4 }}>
+                ROOM CUSTOMIZATION
               </h3>
-              <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>
-                Personalize your room flooring, perimeter walls, and style
+              <p style={{ margin: "4px 0 0", fontSize: 12, color: "#8fe8ee" }}>
+                Indoor house flooring, perimeter walls, and style
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
+            className="btn-secondary"
             style={{
-              background: "transparent",
-              border: "none",
-              color: "#94a3b8",
-              fontSize: 18,
-              cursor: "pointer",
-              padding: "4px 8px",
-              borderRadius: 6,
+              padding: "4px 10px",
+              fontSize: 12,
+              lineHeight: 1,
             }}
+            title="Close"
           >
             ✕
           </button>
@@ -126,106 +118,74 @@ export default function RoomCustomizationModal({
         <div
           style={{
             display: "flex",
-            borderBottom: "1px solid #28283c",
-            backgroundColor: "#161626",
-            padding: "0 12px",
+            gap: 8,
+            borderBottom: "2px solid #1f7a82",
+            backgroundColor: "rgba(10, 16, 22, 0.9)",
+            padding: "8px 16px",
           }}
         >
           <button
             onClick={() => setActiveTab("floor")}
-            style={{
-              padding: "10px 16px",
-              background: "none",
-              border: "none",
-              borderBottom: activeTab === "floor" ? "2px solid #6366f1" : "2px solid transparent",
-              color: activeTab === "floor" ? "#f8fafc" : "#94a3b8",
-              fontWeight: activeTab === "floor" ? 600 : 500,
-              fontSize: 13,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
+            className={activeTab === "floor" ? "btn-primary" : "btn-secondary"}
+            style={{ fontSize: 10, padding: "8px 14px" }}
           >
-            <span>🟫</span>
-            <span>Flooring ({FLOOR_TILES.length})</span>
+            🟫 FLOORS ({FLOOR_TILES.length})
           </button>
 
           <button
             onClick={() => setActiveTab("walls")}
-            style={{
-              padding: "10px 16px",
-              background: "none",
-              border: "none",
-              borderBottom: activeTab === "walls" ? "2px solid #6366f1" : "2px solid transparent",
-              color: activeTab === "walls" ? "#f8fafc" : "#94a3b8",
-              fontWeight: activeTab === "walls" ? 600 : 500,
-              fontSize: 13,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
+            className={activeTab === "walls" ? "btn-primary" : "btn-secondary"}
+            style={{ fontSize: 10, padding: "8px 14px" }}
           >
-            <span>🧱</span>
-            <span>Walls ({WALL_STYLES.length})</span>
+            🧱 WALLS ({WALL_STYLES.length})
           </button>
 
           <button
             onClick={() => setActiveTab("details")}
-            style={{
-              padding: "10px 16px",
-              background: "none",
-              border: "none",
-              borderBottom: activeTab === "details" ? "2px solid #6366f1" : "2px solid transparent",
-              color: activeTab === "details" ? "#f8fafc" : "#94a3b8",
-              fontWeight: activeTab === "details" ? 600 : 500,
-              fontSize: 13,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
+            className={activeTab === "details" ? "btn-primary" : "btn-secondary"}
+            style={{ fontSize: 10, padding: "8px 14px" }}
           >
-            <span>✏️</span>
-            <span>Room Details</span>
+            ✏️ DETAILS
           </button>
         </div>
 
         {/* Tab Body */}
-        <div style={{ flex: 1, overflowY: "auto", padding: 20, minHeight: 320, maxHeight: 420 }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: 20, minHeight: 320, maxHeight: 440 }}>
           {/* FLOORING TAB */}
           {activeTab === "floor" && (
             <div>
               {/* Category Filter Pills */}
-              <div style={{ display: "flex", gap: 6, overflowX: "auto", marginBottom: 14, paddingBottom: 4 }}>
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedFloorCategory(cat)}
-                    style={{
-                      padding: "4px 10px",
-                      borderRadius: 14,
-                      border: "1px solid",
-                      borderColor: selectedFloorCategory === cat ? "#6366f1" : "#2d2d42",
-                      backgroundColor: selectedFloorCategory === cat ? "#312e81" : "#1a1a2e",
-                      color: selectedFloorCategory === cat ? "#c7d2fe" : "#94a3b8",
-                      fontSize: 11,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                      textTransform: "capitalize",
-                    }}
-                  >
-                    {cat}
-                  </button>
-                ))}
+              <div style={{ display: "flex", gap: 6, overflowX: "auto", marginBottom: 16, paddingBottom: 4 }}>
+                {categories.map((cat) => {
+                  const isCatSelected = selectedFloorCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedFloorCategory(cat)}
+                      style={{
+                        padding: "5px 10px",
+                        borderRadius: 2,
+                        border: isCatSelected ? "2px solid #4fd8e0" : "2px solid #1f7a82",
+                        backgroundColor: isCatSelected ? "rgba(79, 216, 224, 0.18)" : "rgba(10, 16, 22, 0.9)",
+                        color: isCatSelected ? "#dffcff" : "#8fe8ee",
+                        fontFamily: "var(--font-pixel)",
+                        fontSize: 9,
+                        cursor: "pointer",
+                        textTransform: "uppercase",
+                        boxShadow: isCatSelected ? "2px 2px 0px #1f7a82" : "none",
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Grid of Floor Tiles */}
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(115px, 1fr))",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
                   gap: 12,
                 }}
               >
@@ -238,17 +198,17 @@ export default function RoomCustomizationModal({
                       data-testid={`floor-tile-${floor.key}`}
                       onClick={() => handleSelectFloor(floor.key)}
                       style={{
-                        backgroundColor: isSelected ? "#232338" : "#181827",
-                        border: isSelected ? "2px solid #6366f1" : "1px solid #2d2d42",
-                        borderRadius: 8,
-                        padding: 8,
+                        backgroundColor: isSelected ? "rgba(31, 185, 196, 0.18)" : "rgba(10, 16, 22, 0.9)",
+                        border: isSelected ? "2px solid #4fd8e0" : "2px solid #1f7a82",
+                        borderRadius: 2,
+                        padding: 10,
                         cursor: "pointer",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        gap: 6,
-                        boxShadow: isSelected ? "0 0 12px rgba(99, 102, 241, 0.4)" : "none",
-                        transition: "all 0.15s ease",
+                        gap: 8,
+                        boxShadow: isSelected ? "2px 2px 0px #1f7a82, 0 0 10px rgba(79, 216, 224, 0.3)" : "none",
+                        transition: "all 0.1s ease",
                       }}
                     >
                       <div
@@ -259,8 +219,9 @@ export default function RoomCustomizationModal({
                           alignItems: "center",
                           justifyContent: "center",
                           overflow: "hidden",
-                          borderRadius: 4,
-                          background: "#12121e",
+                          borderRadius: 2,
+                          background: "#0d0c16",
+                          border: "1px solid #1f7a82",
                         }}
                       >
                         <img
@@ -279,7 +240,7 @@ export default function RoomCustomizationModal({
                           fontSize: 11,
                           fontWeight: 600,
                           textAlign: "center",
-                          color: isSelected ? "#f8fafc" : "#cbd5e1",
+                          color: isSelected ? "#dffcff" : "#8fe8ee",
                           lineHeight: 1.2,
                         }}
                       >
@@ -287,10 +248,10 @@ export default function RoomCustomizationModal({
                       </span>
                       <span
                         style={{
-                          fontSize: 9,
+                          fontFamily: "var(--font-pixel)",
+                          fontSize: 8,
                           textTransform: "uppercase",
-                          color: "#64748b",
-                          fontWeight: 700,
+                          color: isSelected ? "#4fd8e0" : "#1f7a82",
                         }}
                       >
                         {floor.category}
@@ -312,30 +273,29 @@ export default function RoomCustomizationModal({
                     key={wall.key}
                     onClick={() => handleSelectWall(wall.key)}
                     style={{
-                      backgroundColor: isSelected ? "#232338" : "#181827",
-                      border: isSelected ? "2px solid #6366f1" : "1px solid #2d2d42",
-                      borderRadius: 10,
+                      backgroundColor: isSelected ? "rgba(31, 185, 196, 0.18)" : "rgba(10, 16, 22, 0.9)",
+                      border: isSelected ? "2px solid #4fd8e0" : "2px solid #1f7a82",
+                      borderRadius: 2,
                       padding: 14,
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       gap: 16,
-                      boxShadow: isSelected ? "0 0 16px rgba(99, 102, 241, 0.35)" : "none",
-                      transition: "all 0.15s ease",
+                      boxShadow: isSelected ? "2px 2px 0px #1f7a82, 0 0 10px rgba(79, 216, 224, 0.3)" : "none",
+                      transition: "all 0.1s ease",
                     }}
                   >
-                    {/* Thumbnail preview */}
                     <div
                       style={{
                         width: 72,
                         height: 72,
-                        borderRadius: 8,
-                        backgroundColor: "#12121e",
+                        borderRadius: 2,
+                        backgroundColor: "#0d0c16",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         overflow: "hidden",
-                        border: "1px solid #2d2d42",
+                        border: "1px solid #1f7a82",
                         flexShrink: 0,
                       }}
                     >
@@ -357,25 +317,33 @@ export default function RoomCustomizationModal({
 
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: isSelected ? "#f8fafc" : "#e2e8f0" }}>
+                        <h4
+                          style={{
+                            margin: 0,
+                            fontSize: 13,
+                            fontWeight: 700,
+                            color: isSelected ? "#dffcff" : "#8fe8ee",
+                          }}
+                        >
                           {wall.name}
                         </h4>
                         {isSelected && (
                           <span
                             style={{
-                              backgroundColor: "#4f46e5",
-                              color: "#fff",
-                              fontSize: 10,
+                              backgroundColor: "#4fd8e0",
+                              color: "#061e22",
+                              fontFamily: "var(--font-pixel)",
+                              fontSize: 8,
                               fontWeight: 700,
                               padding: "2px 6px",
-                              borderRadius: 4,
+                              borderRadius: 2,
                             }}
                           >
                             ACTIVE
                           </span>
                         )}
                       </div>
-                      <p style={{ margin: 0, fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>
+                      <p style={{ margin: 0, fontSize: 12, color: "#8fe8ee", lineHeight: 1.4 }}>
                         {wall.description}
                       </p>
                     </div>
@@ -389,8 +357,16 @@ export default function RoomCustomizationModal({
           {activeTab === "details" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#cbd5e1", marginBottom: 6 }}>
-                  Room Name
+                <label
+                  style={{
+                    display: "block",
+                    fontFamily: "var(--font-pixel)",
+                    fontSize: 10,
+                    color: "#dffcff",
+                    marginBottom: 8,
+                  }}
+                >
+                  ROOM NAME
                 </label>
                 <input
                   type="text"
@@ -398,22 +374,22 @@ export default function RoomCustomizationModal({
                   onChange={(e) => setRoomName(e.target.value)}
                   maxLength={50}
                   placeholder="e.g. Cozy Sunset Lounge"
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#181827",
-                    border: "1px solid #3b3b54",
-                    borderRadius: 8,
-                    padding: "10px 14px",
-                    color: "#f8fafc",
-                    fontSize: 14,
-                    outline: "none",
-                  }}
+                  className="input-chrome"
+                  style={{ width: "100%" }}
                 />
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#94a3b8", marginBottom: 8 }}>
-                  Quick Preset Names
+                <label
+                  style={{
+                    display: "block",
+                    fontFamily: "var(--font-pixel)",
+                    fontSize: 9,
+                    color: "#8fe8ee",
+                    marginBottom: 8,
+                  }}
+                >
+                  QUICK PRESET NAMES
                 </label>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {namePresets.map((preset) => (
@@ -421,15 +397,8 @@ export default function RoomCustomizationModal({
                       key={preset}
                       type="button"
                       onClick={() => setRoomName(preset)}
-                      style={{
-                        backgroundColor: "#1e1e30",
-                        border: "1px solid #32324a",
-                        color: "#cbd5e1",
-                        fontSize: 11,
-                        padding: "6px 10px",
-                        borderRadius: 6,
-                        cursor: "pointer",
-                      }}
+                      className="btn-secondary"
+                      style={{ fontSize: 9, padding: "6px 10px" }}
                     >
                       {preset}
                     </button>
@@ -441,15 +410,15 @@ export default function RoomCustomizationModal({
                 style={{
                   marginTop: 8,
                   padding: 12,
-                  backgroundColor: "#161626",
-                  border: "1px solid #28283c",
-                  borderRadius: 8,
-                  fontSize: 11,
-                  color: "#94a3b8",
+                  backgroundColor: "rgba(10, 16, 22, 0.9)",
+                  border: "2px solid #1f7a82",
+                  borderRadius: 2,
+                  fontSize: 12,
+                  color: "#8fe8ee",
                   lineHeight: 1.5,
                 }}
               >
-                💡 Changes to room name, wall style, and flooring update instantly for all guests in your house and are saved to your house record.
+                💡 Changes to room name, wall style, and indoor flooring update in real time for all guests and are saved to your house record.
               </div>
             </div>
           )}
@@ -459,33 +428,23 @@ export default function RoomCustomizationModal({
         <div
           style={{
             padding: "14px 20px",
-            borderTop: "1px solid #28283c",
-            backgroundColor: "#141424",
+            borderTop: "2px solid #1f7a82",
+            backgroundColor: "rgba(10, 16, 22, 0.98)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
           }}
         >
-          <span style={{ fontSize: 11, color: "#64748b" }}>
+          <span style={{ fontSize: 11, color: "#8fe8ee" }}>
             Real-time preview active
           </span>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button
-              onClick={onClose}
-              style={{
-                backgroundColor: "#27273a",
-                border: "1px solid #3f3f58",
-                color: "#e2e8f0",
-                padding: "8px 16px",
-                borderRadius: 6,
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Done
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="btn-primary"
+            style={{ fontSize: 10, padding: "8px 18px" }}
+          >
+            DONE
+          </button>
         </div>
       </div>
     </div>

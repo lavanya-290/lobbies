@@ -54,24 +54,28 @@ export class HouseRoom extends Room<HouseState> {
           customData = JSON.parse(room.tilemapRef);
         } catch {}
       }
-      const legacyFloorMap: Record<string, string> = {
-        floor_wood_oak: "floor_thick_wood_timber",
-        floor_wood_mahogany: "floor_thick_wood_walnut",
-        floor_tile_ceramic: "floor_thick_marble_white",
-        floor_tile_checker: "floor_thick_marble_polished",
-        floor_pattern_carpet: "floor_thick_wood_oak",
-        floor_pattern_mosaic: "floor_thick_marble_white",
-        floor_brick_terracotta: "floor_thick_brick_terracotta",
-        floor_stone_slate: "floor_thick_stone_slate",
-        floor_stone_cobble: "floor_thick_stone_cobble",
-        floor_metal_steel: "floor_thick_stone_granite",
-        floor_grill_deck: "floor_thick_wood_rustic",
-        floor_grass_garden: "floor_thick_nature_grass",
-        floor_flora_meadow: "floor_thick_nature_meadow",
-        floor_ice_crystal: "floor_thick_water_pool",
+      const indoorFloorFallbackMap: Record<string, string> = {
+        floor_thick_wood_timber: "floor_wood_oak",
+        floor_thick_wood_oak: "floor_wood_oak",
+        floor_thick_wood_walnut: "floor_wood_mahogany",
+        floor_thick_wood_birch: "floor_wood_oak",
+        floor_thick_wood_rustic: "floor_grill_deck",
+        floor_thick_marble_white: "floor_tile_ceramic",
+        floor_thick_marble_polished: "floor_tile_checker",
+        floor_thick_stone_slate: "floor_stone_slate",
+        floor_thick_stone_cobble: "floor_stone_cobble",
+        floor_thick_stone_granite: "floor_metal_steel",
+        floor_thick_brick_terracotta: "floor_brick_terracotta",
+        floor_thick_nature_grass: "floor_wood_oak",
+        floor_thick_nature_meadow: "floor_wood_oak",
+        floor_thick_water_pool: "floor_tile_ceramic",
+        floor_thick_water_deep: "floor_tile_ceramic",
+        floor_grass_garden: "floor_wood_oak",
+        floor_flora_meadow: "floor_wood_oak",
+        floor_ice_crystal: "floor_tile_ceramic",
       };
       const rawFloor = customData.floorTile;
-      this.state.floorTile = rawFloor ? (legacyFloorMap[rawFloor] || rawFloor) : "floor_thick_wood_timber";
+      this.state.floorTile = rawFloor ? (indoorFloorFallbackMap[rawFloor] || rawFloor) : "floor_wood_oak";
       this.state.wallStyle = customData.wallStyle || "wood";
       this.state.roomName = customData.roomName || (room?.type === "PERSONAL" ? "Personal Bedroom" : "Shared Living Room");
     } catch (e) {
