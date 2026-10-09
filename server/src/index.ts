@@ -6,6 +6,7 @@ import { Server } from "colyseus";
 import { WebSocketTransport } from "@colyseus/ws-transport";
 import { HouseRoom } from "./rooms/HouseRoom";
 import { WorldRoom } from "./rooms/WorldRoom";
+import { LobbyRoom } from "./rooms/LobbyRoom";
 import { authRouter } from "./routes/auth";
 import { meRouter } from "./routes/me";
 import { housesRouter } from "./routes/houses";
@@ -43,6 +44,7 @@ const gameServer = new Server({
 
 gameServer.define("house", HouseRoom).filterBy(["dbRoomId"]);
 gameServer.define("world", WorldRoom);
+gameServer.define("lobby", LobbyRoom);
 
 httpServer.listen(PORT, () => {
   console.log(`[server] Colyseus listening on ws://localhost:${PORT}`);

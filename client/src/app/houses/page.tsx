@@ -132,10 +132,17 @@ export default function HousesPage() {
         </button>
       </section>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
         <h1 className="pixel-header" style={{ margin: 0, fontSize: 16 }}>
           YOUR HOUSES
         </h1>
+        <button
+          onClick={() => router.push("/lobby")}
+          className="btn-secondary"
+          style={{ fontSize: 10, padding: "6px 12px" }}
+        >
+          🛸 HOTEL LOBBY
+        </button>
       </div>
 
       {houses.map((house) => {

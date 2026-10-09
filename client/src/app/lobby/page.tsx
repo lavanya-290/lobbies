@@ -4,17 +4,13 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getToken, getUsername, logout } from "@/lib/auth";
-import { getSelectedRoom, setSelectedRoom } from "@/lib/session";
 
-// Phaser touches `window`, so it must never be server-rendered.
-const PhaserGame = dynamic(() => import("@/game/PhaserGame"), { ssr: false });
+const LobbyPhaserGame = dynamic(() => import("@/game/LobbyPhaserGame"), { ssr: false });
 
-export default function HomePage() {
+export default function LobbyPage() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
-  const [room, setRoom] = useState<ReturnType<typeof getSelectedRoom>>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const token = getToken();
@@ -23,29 +19,10 @@ export default function HomePage() {
       return;
     }
     setUsername(getUsername());
-    const selectedRoom = getSelectedRoom();
-    if (!selectedRoom) {
-      router.push("/lobby");
-      return;
-    }
-    setRoom(selectedRoom);
     setReady(true);
   }, [router]);
 
-  if (error) {
-    return (
-      <main style={{ padding: "80px 24px", color: "#fca5a5", fontFamily: "var(--font-pixel)", fontSize: 12 }}>
-        ⚠️ {error}
-      </main>
-    );
-  }
-  if (!ready || !room) return null;
-
-  function returnToSharedRoom() {
-    if (!room || room.roomType !== "PERSONAL") return;
-    setSelectedRoom(room.houseId, room.sharedRoomId, "SHARED", room.sharedRoomId);
-    setRoom({ ...room, roomId: room.sharedRoomId, roomType: "SHARED" });
-  }
+  if (!ready) return null;
 
   return (
     <main
@@ -76,7 +53,7 @@ export default function HomePage() {
       >
         <div>
           <h1 className="pixel-header" style={{ margin: "0 0 6px 0", fontSize: "12px", lineHeight: 1.4 }}>
-            🏡 {room.roomType === "PERSONAL" ? "PERSONAL ROOM" : "SHARED LIVING ROOM"}
+            🛸 CENTRAL HOTEL LOBBY
           </h1>
           <span style={{ fontSize: "12px", color: "#8fe8ee" }}>
             Logged in as <strong style={{ color: "#4fd8e0" }}>{username}</strong>
@@ -84,31 +61,12 @@ export default function HomePage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          {room.roomType === "PERSONAL" && (
-            <button
-              onClick={returnToSharedRoom}
-              className="btn-secondary"
-              style={{ fontSize: "10px", padding: "6px 12px" }}
-            >
-              LIVING ROOM
-            </button>
-          )}
-
           <button
-            id="nav-overworld-btn"
             onClick={() => router.push("/world")}
             className="btn-primary"
             style={{ fontSize: "10px", padding: "7px 14px" }}
           >
             🌍 OVERWORLD
-          </button>
-
-          <button
-            onClick={() => router.push("/lobby")}
-            className="btn-secondary"
-            style={{ fontSize: "10px", padding: "6px 12px" }}
-          >
-            🛸 LOBBY
           </button>
 
           <button
@@ -137,7 +95,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <PhaserGame houseId={room.houseId} roomId={room.roomId} />
+      <LobbyPhaserGame />
     </main>
   );
 }

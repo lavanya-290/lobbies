@@ -17,7 +17,7 @@ export default function BrandLogoBadge() {
       }}
     >
       <Link
-        href="/"
+        href="/lobby"
         style={{
           display: "inline-block",
           textDecoration: "none",

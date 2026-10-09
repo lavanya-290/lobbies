@@ -41,13 +41,22 @@ export default function WorldPreviewPage() {
             Depth-sorted trees, berry bushes, and ambient fluttering butterflies.
           </p>
         </div>
-        <Link
-          href="/houses"
-          className="btn-secondary"
-          style={{ fontSize: "10px", padding: "6px 14px" }}
-        >
-          ← BACK TO HOUSES
-        </Link>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <Link
+            href="/lobby"
+            className="btn-secondary"
+            style={{ fontSize: "10px", padding: "6px 14px" }}
+          >
+            🛸 LOBBY
+          </Link>
+          <Link
+            href="/houses"
+            className="btn-secondary"
+            style={{ fontSize: "10px", padding: "6px 14px" }}
+          >
+            ← HOUSES
+          </Link>
+        </div>
       </header>
 
       <WorldPhaserGame />

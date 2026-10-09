@@ -23,7 +23,7 @@ export default function LoginPage() {
       } else {
         await register(username, password, gender);
       }
-      router.push("/");
+      router.push("/lobby");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
